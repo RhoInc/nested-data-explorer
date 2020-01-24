@@ -1,2 +1,3 @@
 #nested-data-explorer
-Makes tables for nested tables
+
+Allows users to interactively explorer nested data
