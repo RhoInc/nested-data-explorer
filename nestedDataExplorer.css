@@ -1,0 +1,105 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
+* {
+    padding: 0;
+    margin: 0;
+    font-family: 'Open Sans';
+}
+#title {
+    width: 96%;
+    padding: 0 0 12px 0;
+    border-bottom: 2px solid lightgray;
+    margin: 24px 2% 12px 2%;
+    font-size: 32px;
+    font-weight: normal;
+}
+#subtitle {
+    width: 96%;
+    margin: 0 2% 12px 2%;
+    font-size: 24px;
+    font-weight: lighter;
+    position: relative;
+}
+
+#container {
+    width: 96%;
+    margin: 12px 2%;
+    display: inline-block;
+}
+
+div.groupControl{
+    border:1px solid #999;
+    background: #ccc;
+    border-radius:0.2em;
+    padding:0.5em;
+    margin-bottom:0.5em;
+}
+
+div.wc-controls .groupControl *{
+  display:inline-block;
+}
+
+ul{
+    list-style: none;
+}
+li{
+    border-top:1px solid black;
+    display:table;
+}
+
+span.addGroupControl{
+    padding:0.1em 0.3em;
+    margin-left:0.5em;
+    cursor:pointer;
+    border:1px solid black;
+    border-radius:0.3em;
+    background:white;
+    font-weight: bolder;
+}
+
+.list-cell{
+    display:inline-block;
+    padding-right:1em;
+    height:25px;
+    vertical-align:bottom;
+}
+
+.list-cell .value{
+    vertical-align:top;
+    padding-top:3px;
+}
+
+.group-cell{
+    width:300px;
+    white-space:nowrap;
+    overflow-x:scroll;
+}
+
+li.has-children>div.group-cell span.group-name{
+    color:blue;
+    text-decoration: underline;
+    cursor:pointer;
+}
+
+li.has-children.hidden-children>ul{
+    display:none;
+}
+
+.value-cell{
+   width:150px;
+}
+
+.value-cell *{
+    display:inline-block;
+}
+
+.group-n{
+    width:50px;
+}
+.group-percent{
+    width:50px;
+    cursor:help;
+}
+
+.hidden{
+    display:none;
+}

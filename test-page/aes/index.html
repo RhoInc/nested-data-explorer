@@ -1,0 +1,55 @@
+<html>
+    <head>
+      <title>nested-data-explorer - Example</title>
+      <meta http-equiv = 'Content-Type' content = 'text/html; charset = utf-8'>
+
+      <script type = 'text/javascript' src = 'https://d3js.org/d3.v3.js'></script>
+      <script type = 'text/javascript' src = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts/build/webcharts.js'></script>
+
+      <script type = 'text/javascript' src = '../../nestedDataExplorer.js'></script>
+
+      <link type = 'text/css' rel = 'stylesheet' href = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts/css/webcharts.css'>
+      <link type='text/css' rel='stylesheet' href='../../nestedDataExplorer.css'>
+      <link type = 'text/css' rel = 'stylesheet' href = '../index.css'>
+    </head>
+
+    <body>
+      <div id = 'title'>nested-data-explorer</div>
+      <div id = 'subtitle'>Adverse Event Example</div>
+      <div id= 'info'>This is a demo page for the interactive nested-table tool created by the Rho. Code, details and documentation are available on <a href="https://github.com/RhoInc/nested-data-explorer">github</a>.</div>
+      <div id = 'container'></div>
+    </body>
+
+    <script type = 'text/javascript'>
+      const settings = {
+          group_options: [
+            { value_col: 'none', label: 'None' },
+            { value_col: 'AEBODSYS', label: 'Body System' },
+            { value_col: 'AEDECOD', label: 'Preferred Term' },
+            { value_col: 'SITE', label: 'Site' },
+            { value_col: 'SEX', label: 'Sex' },
+            { value_col: 'RACE', label: 'Race' },
+            { value_col: 'ARM', label: 'Arm' },
+            { value_col: 'AESEV', label: 'Severity' },
+            { value_col: 'AEREL', label: 'Related' },
+            { value_col: 'AEOUT', label: 'Outcome' }
+          ],
+          groups: [
+            'AEBODSYS', 
+            'AEDECOD'
+            //"Artifact",
+            //"Subartifact"
+          ],
+          metrics:[
+          ],
+          date_col:"ASTDT",
+          date_format:"%Y-%m-%d",
+          show_sparklines:true
+        }
+
+      const chart = nestedDataExplorer('#container', settings);
+      d3.csv('https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/adam/adae.csv', function (data) {
+        chart.init(data);
+      });
+</script>
+</html>
