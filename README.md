@@ -1,7 +1,3 @@
 # nested-data-explorer
 
-Allows users to interactively explorer nested data. 
-
-[Example 1 - Adverse Events with sparklines](https://rhoinc.github.io/nested-data-explorer/test-page/aes/)
-
-[Example 2 - NBA data with custom metrics](https://rhoinc.github.io/nested-data-explorer/test-page/nba/)
+Allows users to interactively explore data sets by creating nested tables with custom metrics.  The tool is designed to work with any data including: [Clinical Trial Adverse Events](https://rhoinc.github.io/nested-data-explorer/test-page/aes/),  [Sports statistics](https://rhoinc.github.io/nested-data-explorer/test-page/nba/) or even [political](https://rhoinc.github.io/nested-data-explorer/test-page/presidents/) [data](https://rhoinc.github.io/nested-data-explorer/test-page/congress/). 

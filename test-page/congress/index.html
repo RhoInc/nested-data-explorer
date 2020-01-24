@@ -15,8 +15,8 @@
 
     <body>
       <div id = 'title'>nested-data-explorer</div>
-      <div id = 'subtitle'>NBA Example</div>
-      <div id= 'info'>Nested data explorer for 2020 NBA statistics through Jan 1st ([Data Source](https://www.basketball-reference.com/leagues/NBA_2020_totals.html)). Code, details and documentation are available on <a href="https://github.com/RhoInc/nested-data-explorer">github</a>.</div>
+      <div id = 'subtitle'>2020 Congress Example</div>
+      <div id= 'info'>Nested data explorer for the 2020 congress. Sparklines show age distribution (by birth year) of selected congresspeople. ([Data Source](https://github.com/unitedstates/congress-legislators)). Code, details and documentation are available on <a href="https://github.com/RhoInc/nested-data-explorer">github</a>.</div>
       <div id = 'container'></div>
     </body>
 
@@ -24,22 +24,27 @@
       const settings = {
           group_options: [
             { value_col: 'none', label: 'None' },
-            { value_col: 'Player', label: 'Player' },
-            { value_col: 'Pos', label: 'Pos' },
-            { value_col: 'Age', label: 'Age' },
-            { value_col: 'Tm', label: 'Team' },
+            { value_col: 'full_name', label: 'Name' },
+            { value_col: 'type', label: 'Chamber' },
+
+            { value_col: 'gender', label: 'Gender' },
+            { value_col: 'state', label: 'State' },
+            { value_col: 'party', label: 'Party' },
           ],
-          groups: ['Pos'],
-          metrics:[
-            {label:"Points", calc:d => d3.sum(d,d=>d.PTS),format:"0.0f"},
-            {label: "Minutes", calc: d => d3.sum(d, d => d.MP),format:'0.0f' },
-            {label: "Points Per Minute", calc: function(d){return +this.Points/+this.Minutes}, format: "0.2f" }
-          ]
+          groups: ['type','party'],
+          date_col: "birthday",
+          date_format: "%m/%d/%y",
+          show_sparklines: true,
+          spark: {
+            interval: '%Y',
+            width: 100,
+            height: 25,
+            offset: 4
+          },
+          
         }
       const chart = nestedDataExplorer('#container', settings);
-      d3.csv('2020stats.csv', function (data) {
-        data.forEach(function(m){
-        })
+      d3.csv('legislators-current.csv', function (data) {
         chart.init(data);
       });
 </script>
