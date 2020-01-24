@@ -38,11 +38,21 @@ div.wc-controls .groupControl *{
   display:inline-block;
 }
 
+li.header-row>div{
+    background:#999;
+    color:white;
+}
+
 ul{
     list-style: none;
 }
+
+li>ul{
+    border-top:1px solid #ccc;
+    border-bottom:1px solid #ccc
+}
+
 li{
-    border-top:1px solid black;
     display:table;
 }
 
@@ -58,9 +68,10 @@ span.addGroupControl{
 
 .list-cell{
     display:inline-block;
-    padding-right:1em;
     height:25px;
     vertical-align:bottom;
+    margin-right:2px;
+    padding-left:.2em;
 }
 
 .list-cell .value{
