@@ -74,8 +74,6 @@ export default function drawListLevel(wrap, nest, drawHeader) {
             d3.select(this)
                 .select('div.group-cell')
                 .on('click', function(d) {
-                    console.log('clicked a row with children.');
-
                     let toggle = d3.select(this.parentNode).classed('hidden-children');
                     d3.select(this.parentNode).classed('hidden-children', !toggle);
                 });

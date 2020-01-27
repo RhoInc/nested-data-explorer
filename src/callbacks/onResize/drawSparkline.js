@@ -1,7 +1,6 @@
 export default function drawSparkline(raw, cell) {
     let chart = this;
     let spark = this.config.spark;
-    console.log(raw);
     let d = spark.dates.map(function(date) {
         let obj = { date: date };
         let match = raw.filter(d => d.date == date);
@@ -22,10 +21,6 @@ export default function drawSparkline(raw, cell) {
             height: spark.height
         })
         .append('g');
-
-    //draw the sparkline
-    //console.log(spark.x.domain());
-    //console.log(y.domain());
 
     var draw_sparkline = d3.svg
         .line()

@@ -82,7 +82,7 @@ span.addGroupControl{
 .group-cell{
     width:300px;
     white-space:nowrap;
-    overflow-x:scroll;
+    overflow-x:hidden;
 }
 
 li.has-children>div.group-cell span.group-name{

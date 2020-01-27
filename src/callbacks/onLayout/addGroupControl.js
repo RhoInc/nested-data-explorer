@@ -25,8 +25,6 @@ export default function addGroupControl(start) {
 
         config.raw_groups[pos] = col;
         config.groups = d3.set(config.raw_groups.filter(f => f != 'none')).values();
-        console.log(config.raw_groups);
-        console.log(config.groups);
         chart.draw();
         /*
         config.nested_data = makeNestLevel(config.groups[0], data)

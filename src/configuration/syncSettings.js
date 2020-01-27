@@ -33,6 +33,5 @@ export default function syncSettings(settings) {
         showSparkline: false,
         visible: settings.hide_percent ? false : true
     });
-    console.log(settings.metrics);
     return settings;
 }

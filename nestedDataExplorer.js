@@ -225,7 +225,6 @@
             showSparkline: false,
             visible: settings.hide_percent ? false : true
         });
-        console.log(settings.metrics);
         return settings;
     }
 
@@ -345,8 +344,6 @@
                     })
                 )
                 .values();
-            console.log(config.raw_groups);
-            console.log(config.groups);
             chart.draw();
             /*
             config.nested_data = makeNestLevel(config.groups[0], data)
@@ -454,7 +451,6 @@
 
     function drawSparkline(raw, cell) {
         var spark = this.config.spark;
-        console.log(raw);
         var d = spark.dates.map(function(date) {
             var obj = { date: date };
             var match = raw.filter(function(d) {
@@ -481,10 +477,6 @@
                 height: spark.height
             })
             .append('g');
-
-        //draw the sparkline
-        //console.log(spark.x.domain());
-        //console.log(y.domain());
 
         var draw_sparkline = d3.svg
             .line()
@@ -621,8 +613,6 @@
                 d3.select(this)
                     .select('div.group-cell')
                     .on('click', function(d) {
-                        console.log('clicked a row with children.');
-
                         var toggle = d3.select(this.parentNode).classed('hidden-children');
                         d3.select(this.parentNode).classed('hidden-children', !toggle);
                     });
