@@ -14,13 +14,10 @@ export default function drawSparkline(raw, cell) {
         .range([spark.height - spark.offset, spark.offset]);
 
     //render the svg
-    var svg = cell
-        .append('svg')
-        .attr({
-            width: spark.width,
-            height: spark.height
-        })
-        .append('g');
+    var svg = cell.append('svg').attr({
+        width: spark.width,
+        height: spark.height
+    });
 
     var draw_sparkline = d3.svg
         .line()
@@ -36,6 +33,65 @@ export default function drawSparkline(raw, cell) {
             d: draw_sparkline,
             fill: 'none',
             stroke: '#999'
+        });
+
+    var point_g = svg
+        .selectAll('g')
+        .data(d)
+        .enter()
+        .append('g');
+
+    point_g
+        .append('circle')
+        .attr('cx', d => spark.x(d.date))
+        .attr('cy', d => y(+d.value))
+        .attr('r', spark.rangeband)
+        .attr('fill', 'transparent')
+        .attr('stroke', 'transparent');
+
+    point_g
+        .append('rect')
+        .attr('height', spark.height)
+        .attr('width', spark.rangeband)
+        .attr('x', d => spark.x(d.date) - spark.rangeband / 2)
+        .attr('y', 0)
+        .attr('stroke', 'transparent')
+        .attr('fill', 'transparent');
+
+    point_g
+        .on('mouseover', function(d) {
+            //console.log(d);
+            d3.select(this)
+                .select('circle')
+                .attr('stroke', '#2b8cbe')
+                .attr('fill', '#2b8cbe');
+            //show year label
+            let label = d.date + ' - ' + d.value;
+
+            // g -> svg -> div.sparkline -> div.value-cell
+            let valuecell = d3.select(this.parentElement.parentElement.parentElement);
+            console.log(valuecell);
+            valuecell.select('div.value').classed('hidden', true);
+            let hoverCell = valuecell.append('div').attr('class', 'hover');
+            hoverCell
+                .append('div')
+                .attr('class', 'hover-date')
+                .text(d.date);
+            hoverCell
+                .append('div')
+                .attr('class', 'hover-value')
+                .text(d.value);
+        })
+        .on('mouseout', function(d) {
+            //hide point
+            d3.select(this)
+                .select('circle')
+                .attr('stroke', 'transparent')
+                .attr('fill', 'transparent');
+            let valuecell = d3.select(this.parentElement.parentElement.parentElement);
+            //show overall value
+            valuecell.select('div.value').classed('hidden', false);
+            valuecell.select('div.hover').remove();
         });
 
     //draw outliers
