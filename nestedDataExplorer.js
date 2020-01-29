@@ -378,6 +378,7 @@
         var metric_obj = {};
         metric_obj.label = metric.label;
         metric_obj.visible = metric.visible;
+        metric_obj.showSparkline = metric.showSparkline;
         this[metric.label] = metric.calc.call(this, d);
         metric_obj.value = this[metric.label];
         metric_obj.formatted = metric.format
@@ -604,6 +605,9 @@
                 .enter()
                 .append('div')
                 .attr('class', 'list-cell value-cell')
+                .style('width', function(d) {
+                    return config.show_sparklines & d.showSparkline ? 150 : 50;
+                })
                 .text(function(d) {
                     return d.label;
                 });
@@ -647,7 +651,10 @@
             })
             .enter()
             .append('div')
-            .attr('class', 'list-cell value-cell');
+            .attr('class', 'list-cell value-cell')
+            .style('width', function(d) {
+                return config.show_sparklines & d.showSparkline ? 150 : 50;
+            });
 
         if (config.show_sparklines) {
             value_cells
@@ -657,9 +664,7 @@
                 })
                 .attr('class', 'sparkline')
                 .classed('hidden', function(d) {
-                    return !config.metrics.find(function(f) {
-                        return f.label == d.label;
-                    })['showSparkline'];
+                    return !d.showSparkline;
                 })
                 .each(function(d) {
                     drawSparkline.call(chart, d.sparkline, d3.select(this));

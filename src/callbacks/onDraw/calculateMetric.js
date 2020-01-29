@@ -2,6 +2,7 @@ export default function calculateMetric(metric, d) {
     let metric_obj = {};
     metric_obj.label = metric.label;
     metric_obj.visible = metric.visible;
+    metric_obj.showSparkline = metric.showSparkline;
     this[metric.label] = metric.calc.call(this, d);
     metric_obj.value = this[metric.label];
     metric_obj.formatted = metric.format

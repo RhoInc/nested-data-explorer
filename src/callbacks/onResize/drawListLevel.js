@@ -15,6 +15,7 @@ export default function drawListLevel(wrap, nest, drawHeader) {
             .enter()
             .append('div')
             .attr('class', 'list-cell value-cell')
+            .style('width', d => (config.show_sparklines & d.showSparkline ? 150 : 50))
             .text(d => d.label);
     }
     let lis = ul
@@ -49,14 +50,15 @@ export default function drawListLevel(wrap, nest, drawHeader) {
         .data(d => d.values.metrics.filter(f => f.visible))
         .enter()
         .append('div')
-        .attr('class', 'list-cell value-cell');
+        .attr('class', 'list-cell value-cell')
+        .style('width', d => (config.show_sparklines & d.showSparkline ? 150 : 50));
 
     if (config.show_sparklines) {
         value_cells
             .append('div')
             .datum(d => d)
             .attr('class', 'sparkline')
-            .classed('hidden', d => !config.metrics.find(f => f.label == d.label)['showSparkline'])
+            .classed('hidden', d => !d.showSparkline)
             .each(function(d) {
                 drawSparkline.call(chart, d.sparkline, d3.select(this));
             });
