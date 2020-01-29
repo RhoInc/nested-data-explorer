@@ -16,6 +16,5 @@ export default function onDraw() {
         .rangeBands([spark.offset, spark.width - spark.offset]);
 
     spark.rangeband = spark.xBars.rangeBand();
-    console.log(spark);
     this.nested_data = makeNestLevel.call(this, this.config.groups[0], this.filtered_data);
 }

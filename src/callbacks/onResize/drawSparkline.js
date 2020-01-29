@@ -70,7 +70,6 @@ export default function drawSparkline(raw, cell) {
 
             // g -> svg -> div.sparkline -> div.value-cell
             let valuecell = d3.select(this.parentElement.parentElement.parentElement);
-            console.log(valuecell);
             valuecell.select('div.value').classed('hidden', true);
             let hoverCell = valuecell.append('div').attr('class', 'hover');
             hoverCell
