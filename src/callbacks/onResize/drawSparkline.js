@@ -60,7 +60,6 @@ export default function drawSparkline(raw, cell) {
 
     point_g
         .on('mouseover', function(d) {
-            //console.log(d);
             d3.select(this)
                 .select('circle')
                 .attr('stroke', '#2b8cbe')
