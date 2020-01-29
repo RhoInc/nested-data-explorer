@@ -5,8 +5,10 @@
 
       <script type = 'text/javascript' src = 'https://d3js.org/d3.v3.js'></script>
       <script type = 'text/javascript' src = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts/build/webcharts.js'></script>
-
+      <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+      
       <script type = 'text/javascript' src = '../../nestedDataExplorer.js'></script>
+      
 
       <link type = 'text/css' rel = 'stylesheet' href = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts/css/webcharts.css'>
       <link type='text/css' rel='stylesheet' href='../../nestedDataExplorer.css'>
@@ -23,10 +25,8 @@
     <script type = 'text/javascript'>
       const settings = {
           group_options: [
-            { value_col: 'none', label: 'None' },
             { value_col: 'full_name', label: 'Name' },
             { value_col: 'type', label: 'Chamber' },
-
             { value_col: 'gender', label: 'Gender' },
             { value_col: 'state', label: 'State' },
             { value_col: 'party', label: 'Party' },

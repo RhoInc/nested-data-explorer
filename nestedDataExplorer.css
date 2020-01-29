@@ -34,6 +34,21 @@ div.groupControl{
     margin-bottom:0.5em;
 }
 
+div.groupControl>ul>li{
+    border:1px solid black;
+    background:white;
+    color:#999;
+    border-radius:0.2em;
+    padding:0.2em 0.5em;
+    margin-left:0.2em;
+    cursor:pointer;
+}
+
+div.groupControl>ul>li.active{
+    background:#a6bddb;
+    color:black;
+}
+
 div.wc-controls .groupControl *{
   display:inline-block;
 }

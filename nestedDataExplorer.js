@@ -300,75 +300,111 @@
         makeDateInterval.call(this);
     }
 
-    function addGroupControl(start) {
+    function updateGroupControl() {
+        var config = this.config;
+        config.group_options = config.group_options.sort(function(a, b) {
+            var index_a = config.groups.indexOf(a.value_col);
+            var index_b = config.groups.indexOf(b.value_col);
+
+            var a_val = index_a == -1 ? 9999 : index_a;
+            var b_val = index_b == -1 ? 9999 : index_b;
+
+            return a_val - b_val;
+        });
+
+        console.log(config.groups);
+        console.log(config.group_options);
+
+        this.groupControl
+            .select('ul')
+            .selectAll('li')
+            .data(config.group_options, function(d) {
+                return d.value_col;
+            })
+            .order()
+            .classed('active', function(d) {
+                return config.groups.indexOf(d.value_col) > -1;
+            });
+    }
+
+    function makeGroupControl() {
         var chart = this;
         var config = this.config;
-        start = start ? start : 'none';
+        this.groupControl = this.controls.wrap.insert('div', '*').attr('class', 'groupControl');
+        this.groupControl
+            .append('span')
+            .text('Group By:')
+            .append('sup')
+            .html('&#9432;')
+            .style('cursor', 'help')
+            .attr(
+                'title',
+                'Drag items to reorder levels.\n Double click items to show/hide levels.'
+            );
+        var group_ul = this.groupControl.append('ul').attr('id', 'group-control');
 
-        // update the config
-        config.raw_groups.push(start);
-        config.groups = d3
-            .set(
-                config.raw_groups.filter(function(f) {
-                    return f != 'none';
-                })
-            )
-            .values();
-        var pos = config.raw_groups.length - 1;
-        //note that 'overall' is in the first spot (i=0) in the raw_groups array, but doesn't have a control
-
-        //make the control
-        var select = this.groupControl.insert('select', 'span.addGroupControl');
-        select
-            .selectAll('option')
-            .data(config.group_options)
+        group_ul
+            .selectAll('li')
+            .data(config.group_options, function(d) {
+                return d.value_col;
+            })
             .enter()
-            .append('option')
+            .append('li')
             .text(function(d) {
                 return d.label;
-            })
-            .property('selected', function(d) {
-                return d.value_col == start;
             });
 
-        select.on('change', function(d) {
-            var label = this.value;
-            var col = config.group_options.find(function(f) {
-                return f.label == label;
-            })['value_col'];
-
-            config.raw_groups[pos] = col;
-            config.groups = d3
-                .set(
-                    config.raw_groups.filter(function(f) {
-                        return f != 'none';
-                    })
-                )
-                .values();
+        //double click an item to add/remove from active groups
+        group_ul.selectAll('li').on('dblclick', function(d) {
+            // add/remove from active groups
+            var active = config.groups.indexOf(d.value_col) > -1;
+            if (active) {
+                config.groups = config.groups.filter(function(f) {
+                    return f != d.value_col;
+                });
+            } else {
+                config.groups.push(d.value_col);
+            }
+            updateGroupControl.call(chart);
             chart.draw();
-            /*
-            config.nested_data = makeNestLevel(config.groups[0], data)
-            config.chart.select("ul").remove()
-            drawLevel(config.chart, config.nested_data)
-            */
         });
+
+        //make the list draggable with sortable
+        var groupList = document.getElementById('group-control');
+        var sortable = Sortable.create(groupList, {
+            fallbackOnBody: true,
+            onChange: function onChange(evt) {
+                var n_groups = config.groups.length;
+                var ul = d3.select(this.el);
+                ul.selectAll('li').classed('active', function(d, i) {
+                    return i < n_groups;
+                });
+            },
+            onEnd: function onEnd(evt) {
+                // update the data for the group list
+                var ul = d3.select(this.el);
+                var lis = ul.selectAll('li');
+                config.group_options = lis.data();
+                config.groups = ul
+                    .selectAll('li.active')
+                    .data()
+                    .map(function(m) {
+                        return m.value_col;
+                    });
+
+                //draw the chart
+                updateGroupControl.call(chart);
+                chart.draw();
+            }
+        });
+
+        updateGroupControl.call(this);
     }
 
     function onLayout() {
         var chart = this;
         this.list = chart.wrap.append('list');
-        this.groupControl = this.controls.wrap.insert('div', '*').attr('class', 'groupControl');
-        this.groupControl.append('span').text('Group By:  ');
-        this.groupControl
-            .append('span')
-            .text('+')
-            .classed('addGroupControl', true)
-            .on('click', function() {
-                addGroupControl.call(chart);
-            });
-        this.config.groups.forEach(function(group) {
-            addGroupControl.call(chart, group);
-        });
+        makeGroupControl.call(this);
     }
 
     function onPreprocess() {}
@@ -459,7 +495,6 @@
     function onDraw() {
         makeDateScale.call(this);
         this.nested_data = makeNestLevel.call(this, this.config.groups[0], this.filtered_data);
-        console.log(this.nested_data);
     }
 
     function drawSparkline(raw, cell) {
