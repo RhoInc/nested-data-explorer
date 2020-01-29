@@ -160,6 +160,7 @@
             show_sparklines: false,
             date_col: null,
             date_format: null, //if specified, will attempt to parse date_col with d3.time.format(date_format)
+            show_level: 2, // Show "Overall" (level 1) and first user specified group (level 2) by default
             spark: {
                 interval: '%Y-%m',
                 count: 12, //show the last x values for the interval
@@ -431,7 +432,7 @@
         return myNest;
     }
 
-    function onDraw() {
+    function makeDateScale() {
         var spark = this.config.spark;
         spark.dates = d3
             .set(
@@ -453,8 +454,12 @@
             .rangeBands([spark.offset, spark.width - spark.offset]);
 
         spark.rangeband = spark.xBars.rangeBand();
-        console.log(spark);
+    }
+
+    function onDraw() {
+        makeDateScale.call(this);
         this.nested_data = makeNestLevel.call(this, this.config.groups[0], this.filtered_data);
+        console.log(this.nested_data);
     }
 
     function drawSparkline(raw, cell) {
@@ -534,7 +539,6 @@
 
         point_g
             .on('mouseover', function(d) {
-                //console.log(d);
                 d3.select(this)
                     .select('circle')
                     .attr('stroke', '#2b8cbe')
@@ -544,7 +548,6 @@
 
                 // g -> svg -> div.sparkline -> div.value-cell
                 var valuecell = d3.select(this.parentElement.parentElement.parentElement);
-                console.log(valuecell);
                 valuecell.select('div.value').classed('hidden', true);
                 var hoverCell = valuecell.append('div').attr('class', 'hover');
                 hoverCell
@@ -620,6 +623,12 @@
             .attr('class', 'value-row')
             .classed('has-children', function(d) {
                 return d.values.children.length > 0;
+            })
+            .classed('hidden-children', function(d) {
+                return d.values.level >= config.show_level;
+            })
+            .classed('pending-children', function(d) {
+                return d.values.level >= config.show_level;
             });
 
         lis.append('div')
@@ -687,12 +696,24 @@
                 d3.select(this)
                     .select('div.group-cell')
                     .on('click', function(d) {
-                        var toggle = d3.select(this.parentNode).classed('hidden-children');
-                        d3.select(this.parentNode).classed('hidden-children', !toggle);
+                        var li = d3.select(this.parentNode);
+                        var li_data = li.datum();
+
+                        var pending = li.classed('pending-children');
+                        if (pending) {
+                            drawListLevel.call(chart, li, li_data.values.children, false);
+                            li.classed('pending-children', false);
+                        }
+
+                        li.classed('hidden-children', !li.classed('hidden-children')); //toggle
                     });
 
-                //draw nested lists for children
-                drawListLevel.call(chart, d3.select(this), d.values.children, false);
+                //draw nested lists for children if level is visible
+                if (d.values.level < config.show_level) {
+                    drawListLevel.call(chart, d3.select(this), d.values.children, false);
+                } else {
+                    d3.select(this.parentNode).classed('pending-children', true);
+                }
             }
         });
     }

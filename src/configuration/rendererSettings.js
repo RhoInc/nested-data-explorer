@@ -9,6 +9,7 @@ export default function rendererSettings() {
         show_sparklines: false,
         date_col: null,
         date_format: null, //if specified, will attempt to parse date_col with d3.time.format(date_format)
+        show_level: 2, // Show "Overall" (level 1) and first user specified group (level 2) by default
         spark: {
             interval: '%Y-%m',
             count: 12, //show the last x values for the interval

@@ -24,7 +24,9 @@ export default function drawListLevel(wrap, nest, drawHeader) {
         .enter()
         .append('li')
         .attr('class', 'value-row')
-        .classed('has-children', d => d.values.children.length > 0);
+        .classed('has-children', d => d.values.children.length > 0)
+        .classed('hidden-children', d => d.values.level >= config.show_level)
+        .classed('pending-children', d => d.values.level >= config.show_level);
 
     lis.append('div')
         .attr('class', 'list-cell group-cell')
@@ -76,12 +78,24 @@ export default function drawListLevel(wrap, nest, drawHeader) {
             d3.select(this)
                 .select('div.group-cell')
                 .on('click', function(d) {
-                    let toggle = d3.select(this.parentNode).classed('hidden-children');
-                    d3.select(this.parentNode).classed('hidden-children', !toggle);
+                    let li = d3.select(this.parentNode);
+                    let li_data = li.datum();
+
+                    let pending = li.classed('pending-children');
+                    if (pending) {
+                        drawListLevel.call(chart, li, li_data.values.children, false);
+                        li.classed('pending-children', false);
+                    }
+
+                    li.classed('hidden-children', !li.classed('hidden-children')); //toggle
                 });
 
-            //draw nested lists for children
-            drawListLevel.call(chart, d3.select(this), d.values.children, false);
+            //draw nested lists for children if level is visible
+            if (d.values.level < config.show_level) {
+                drawListLevel.call(chart, d3.select(this), d.values.children, false);
+            } else {
+                d3.select(this.parentNode).classed('pending-children', true);
+            }
         }
     });
 }

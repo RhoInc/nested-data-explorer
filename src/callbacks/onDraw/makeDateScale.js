@@ -1,4 +1,4 @@
-export default function makeDateScale(){
+export default function makeDateScale() {
     let spark = this.config.spark;
     spark.dates = d3.set(this.filtered_data.map(m => m.date_interval)).values();
 
