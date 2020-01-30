@@ -160,10 +160,10 @@
             show_sparklines: false,
             date_col: null,
             date_format: null, //if specified, will attempt to parse date_col with d3.time.format(date_format)
-            show_level: 2, // Show "Overall" (level 1) and first user specified group (level 2) by default
+            show_level: 1, // How many groups to expand (user can update in app)
+            show_overall: true,
             spark: {
                 interval: '%Y-%m',
-                count: 12, //show the last x values for the interval
                 width: 100,
                 height: 25,
                 offset: 4
@@ -312,9 +312,6 @@
             return a_val - b_val;
         });
 
-        console.log(config.groups);
-        console.log(config.group_options);
-
         this.groupControl
             .select('ul')
             .selectAll('li')
@@ -403,7 +400,7 @@
 
     function onLayout() {
         var chart = this;
-        this.list = chart.wrap.append('list');
+        this.list = chart.wrap.append('div').attr('class', 'nested-data-explorer');
         makeGroupControl.call(this);
     }
 
@@ -670,7 +667,7 @@
             .attr('class', 'list-cell group-cell')
             .html(function(d) {
                 return (
-                    '&nbsp;&nbsp;&nbsp;'.repeat(d.values.level - 1) +
+                    '&nbsp;&nbsp;&nbsp;'.repeat(d.values.level > 0 ? d.values.level - 1 : 0) +
                     "<span class='group-name'>" +
                     d.key +
                     '</span>'
@@ -753,12 +750,19 @@
         });
     }
 
+    function drawOverall() {
+        var overall_wrap = this.list.append('ul').attr('class', 'overall-row');
+        this.overall_data = makeNestLevel.call(this, 'overall', this.filtered_data);
+        drawListLevel.call(this, overall_wrap, this.overall_data);
+    }
+
     function onResize() {
         this.wrap.select('svg').style('display', 'none');
         this.list.selectAll('*').remove();
 
         if (this.filtered_data.length > 0) {
             drawListLevel.call(this, this.list, this.nested_data, true);
+            if (this.config.show_overall) drawOverall.call(this);
         } else {
             this.list
                 .append('span')

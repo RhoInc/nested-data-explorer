@@ -58,6 +58,12 @@ li.header-row>div{
     color:white;
 }
 
+ul.overall-row ul>li{
+    background: #eee;
+    border-top:1px solid #999;
+    border-bottom:1px solid #999;
+
+}
 ul{
     list-style: none;
 }

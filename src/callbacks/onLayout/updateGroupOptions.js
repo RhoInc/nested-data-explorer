@@ -10,9 +10,6 @@ export default function updateGroupControl() {
         return a_val - b_val;
     });
 
-    console.log(config.groups);
-    console.log(config.group_options);
-
     this.groupControl
         .select('ul')
         .selectAll('li')

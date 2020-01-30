@@ -32,7 +32,7 @@ export default function drawListLevel(wrap, nest, drawHeader) {
         .attr('class', 'list-cell group-cell')
         .html(
             d =>
-                '&nbsp;&nbsp;&nbsp;'.repeat(d.values.level - 1) +
+                '&nbsp;&nbsp;&nbsp;'.repeat(d.values.level > 0 ? d.values.level - 1 : 0) +
                 "<span class='group-name'>" +
                 d.key +
                 '</span>'
