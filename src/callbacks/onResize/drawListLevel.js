@@ -1,42 +1,33 @@
 import drawSparkline from './drawSparkline';
-export default function drawListLevel(wrap, nest, drawHeader) {
+import drawHeader from './drawHeader';
+import drawChildren from './drawChildren';
+
+export default function drawListLevel(wrap, nest, header, iterate) {
     let chart = this;
     let config = this.config;
+    if (iterate == undefined) iterate = false;
     let ul = wrap.append('ul');
-    if (drawHeader) {
-        let header = ul.append('li').attr('class', 'header-row');
-        header
-            .append('div')
-            .attr('class', 'list-cell group-cell')
-            .text('Group');
-        header
-            .selectAll('div.value-cell')
-            .data(d => chart.config.metrics.filter(f => f.visible))
-            .enter()
-            .append('div')
-            .attr('class', 'list-cell value-cell')
-            .style('width', d => (config.show_sparklines & d.showSparkline ? 150 : 50))
-            .text(d => d.label);
-    }
+    if (header) drawHeader.call(this, ul);
+
     let lis = ul
         .selectAll('li.value-row')
         .data(nest)
         .enter()
         .append('li')
         .attr('class', 'value-row')
-        .classed('has-children', d => d.values.children.length > 0)
-        .classed('hidden-children', d => d.values.level >= config.show_level)
-        .classed('pending-children', d => d.values.level >= config.show_level);
+        .classed('has-children', d => d.values.hasChildren);
 
     lis.append('div')
         .attr('class', 'list-cell group-cell')
         .html(
             d =>
-                '&nbsp;&nbsp;&nbsp;'.repeat(d.values.level > 0 ? d.values.level - 1 : 0) +
+                '&nbsp;&nbsp;&nbsp;'.repeat(d.values.level > 0 ? d.values.level : 0) +
                 "<span class='group-name'>" +
                 d.key +
                 '</span>'
-        )
+        );
+
+    /* TODO fake little css barchart - could revive later with option? 
         .style(
             'background',
             d =>
@@ -46,6 +37,7 @@ export default function drawListLevel(wrap, nest, drawHeader) {
                 d3.format('.0%')(d.values.percent) +
                 ')'
         );
+        */
 
     let value_cells = lis
         .selectAll('div.value-cell')
@@ -73,29 +65,25 @@ export default function drawListLevel(wrap, nest, drawHeader) {
         .attr('title', d => (d.title ? d.title : null));
 
     lis.each(function(d) {
-        if (d.values.children.length > 0) {
+        if (d.values.hasChildren) {
+            //iterate (draw the children ul) if requested
+            if (iterate) drawChildren.call(chart, d3.select(this), true);
+
             //click group-cell to show/hide children
             d3.select(this)
                 .select('div.group-cell')
                 .on('click', function(d) {
                     let li = d3.select(this.parentNode);
-                    let li_data = li.datum();
 
-                    let pending = li.classed('pending-children');
-                    if (pending) {
-                        drawListLevel.call(chart, li, li_data.values.children, false);
-                        li.classed('pending-children', false);
+                    //if ul exists toggle it's visibility
+                    if (!li.select('ul').empty()) {
+                        let toggle = !li.select('ul').classed('hidden');
+                        li.select('ul').classed('hidden', toggle);
                     }
 
-                    li.classed('hidden-children', !li.classed('hidden-children')); //toggle
+                    //try to draw any children (iteratively, if shift or ctrl is down )
+                    drawChildren.call(chart, li, d3.event.shiftKey || d3.event.ctrlKey);
                 });
-
-            //draw nested lists for children if level is visible
-            if (d.values.level < config.show_level) {
-                drawListLevel.call(chart, d3.select(this), d.values.children, false);
-            } else {
-                d3.select(this.parentNode).classed('pending-children', true);
-            }
         }
     });
 }

@@ -1,10 +1,18 @@
 import calculateMetric from './calculateMetric';
 
-export default function makeNestLevel(key, data) {
+export default function makeNestLevel(key, data, iterate) {
     let chart = this;
     let config = chart.config;
-    let keyIndex = config.groups.indexOf(key) + 1;
-    let nextKey = (keyIndex > 0) & (keyIndex < config.groups.length) ? config.groups[keyIndex] : '';
+    if (iterate == undefined) iterate = false;
+
+    //Does this level of the nest have children? If so, what is the next level?
+    let keyIndex = config.groups.indexOf(key);
+    let groupKey = keyIndex > -1;
+    let lastGroupKey = keyIndex == config.groups.length - 1;
+    let hasChildren = groupKey & !lastGroupKey;
+    let childrenKey = hasChildren ? config.groups[keyIndex + 1] : '';
+
+    //Make the nest level
     let myNest = d3
         .nest()
         .key(d => d[key])
@@ -12,10 +20,26 @@ export default function makeNestLevel(key, data) {
             let obj = {};
             obj.total = chart.filtered_data.length;
             obj.raw = d;
-            obj.children = nextKey.length == 0 ? [] : makeNestLevel.call(chart, nextKey, d);
+            obj.level = keyIndex;
+            obj.childrenKey = childrenKey;
+            obj.hasChildren = hasChildren;
+
+            obj.children = [];
+            obj.childrenStatus = '';
+            if (hasChildren & !iterate) {
+                obj.childrenStatus = 'pending';
+            } else if (hasChildren & iterate) {
+                obj.childrenStatus = 'ready';
+                obj.children = makeNestLevel.call(chart, childrenKey, d, true);
+            } else if (!hasChildren) {
+                obj.childrenStatus = 'none';
+            }
+
+            // get data for the sparkline (but don't do this if you'e already calculating sparkline data)
             if ((key != 'date_interval') & config.show_sparklines)
                 obj.sparkline = makeNestLevel.call(chart, 'date_interval', d);
-            obj.level = keyIndex;
+
+            // get metrics data
             obj.metrics = [];
             config.metrics.forEach(function(metric) {
                 let metricObj = calculateMetric.call(obj, metric, d);

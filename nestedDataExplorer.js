@@ -160,7 +160,6 @@
             show_sparklines: false,
             date_col: null,
             date_format: null, //if specified, will attempt to parse date_col with d3.time.format(date_format)
-            show_level: 1, // How many groups to expand (user can update in app)
             show_overall: true,
             spark: {
                 interval: '%Y-%m',
@@ -422,12 +421,19 @@
         return metric_obj;
     }
 
-    function makeNestLevel(key, data) {
+    function makeNestLevel(key, data, iterate) {
         var chart = this;
         var config = chart.config;
-        var keyIndex = config.groups.indexOf(key) + 1;
-        var nextKey =
-            (keyIndex > 0) & (keyIndex < config.groups.length) ? config.groups[keyIndex] : '';
+        if (iterate == undefined) iterate = false;
+
+        //Does this level of the nest have children? If so, what is the next level?
+        var keyIndex = config.groups.indexOf(key);
+        var groupKey = keyIndex > -1;
+        var lastGroupKey = keyIndex == config.groups.length - 1;
+        var hasChildren = groupKey & !lastGroupKey;
+        var childrenKey = hasChildren ? config.groups[keyIndex + 1] : '';
+
+        //Make the nest level
         var myNest = d3
             .nest()
             .key(function(d) {
@@ -437,10 +443,26 @@
                 var obj = {};
                 obj.total = chart.filtered_data.length;
                 obj.raw = d;
-                obj.children = nextKey.length == 0 ? [] : makeNestLevel.call(chart, nextKey, d);
+                obj.level = keyIndex;
+                obj.childrenKey = childrenKey;
+                obj.hasChildren = hasChildren;
+
+                obj.children = [];
+                obj.childrenStatus = '';
+                if (hasChildren & !iterate) {
+                    obj.childrenStatus = 'pending';
+                } else if (hasChildren & iterate) {
+                    obj.childrenStatus = 'ready';
+                    obj.children = makeNestLevel.call(chart, childrenKey, d, true);
+                } else if (!hasChildren) {
+                    obj.childrenStatus = 'none';
+                }
+
+                // get data for the sparkline (but don't do this if you'e already calculating sparkline data)
                 if ((key != 'date_interval') & config.show_sparklines)
                     obj.sparkline = makeNestLevel.call(chart, 'date_interval', d);
-                obj.level = keyIndex;
+
+                // get metrics data
                 obj.metrics = [];
                 config.metrics.forEach(function(metric) {
                     var metricObj = calculateMetric.call(obj, metric, d);
@@ -620,33 +642,63 @@
         */
     }
 
-    function drawListLevel(wrap, nest, drawHeader) {
+    function drawHeader(ul) {
         var chart = this;
         var config = this.config;
-        var ul = wrap.append('ul');
-        if (drawHeader) {
-            var header = ul.append('li').attr('class', 'header-row');
-            header
-                .append('div')
-                .attr('class', 'list-cell group-cell')
-                .text('Group');
-            header
-                .selectAll('div.value-cell')
-                .data(function(d) {
-                    return chart.config.metrics.filter(function(f) {
-                        return f.visible;
-                    });
-                })
-                .enter()
-                .append('div')
-                .attr('class', 'list-cell value-cell')
-                .style('width', function(d) {
-                    return config.show_sparklines & d.showSparkline ? 150 : 50;
-                })
-                .text(function(d) {
-                    return d.label;
+        var header = ul.append('li').attr('class', 'header-row');
+        header
+            .append('div')
+            .attr('class', 'list-cell group-cell')
+            .text('Group');
+        header
+            .selectAll('div.value-cell')
+            .data(function(d) {
+                return chart.config.metrics.filter(function(f) {
+                    return f.visible;
+                });
+            })
+            .enter()
+            .append('div')
+            .attr('class', 'list-cell value-cell')
+            .style('width', function(d) {
+                return config.show_sparklines & d.showSparkline ? 150 : 50;
+            })
+            .text(function(d) {
+                return d.label;
+            });
+    }
+
+    function drawChildren(li, iterate) {
+        var chart = this;
+        var li_data = li.datum();
+        var pending = li_data.values.childrenStatus == 'pending';
+
+        //if the children data is pending calculate the nest and draw the ul
+        if (pending) {
+            li_data.values.children = makeNestLevel.call(
+                chart,
+                li_data.values.childrenKey,
+                li_data.values.raw
+            );
+            li_data.values.childrenStatus = 'ready';
+            drawListLevel.call(chart, li, li_data.values.children, false, iterate);
+        } else if (iterate) {
+            //check for children with 'pending' status
+            li.select('ul')
+                .selectAll('li')
+                .each(function(d) {
+                    drawChildren.call(chart, d3.select(this), true);
                 });
         }
+    }
+
+    function drawListLevel(wrap, nest, header, iterate) {
+        var chart = this;
+        var config = this.config;
+        if (iterate == undefined) iterate = false;
+        var ul = wrap.append('ul');
+        if (header) drawHeader.call(this, ul);
+
         var lis = ul
             .selectAll('li.value-row')
             .data(nest)
@@ -654,34 +706,31 @@
             .append('li')
             .attr('class', 'value-row')
             .classed('has-children', function(d) {
-                return d.values.children.length > 0;
-            })
-            .classed('hidden-children', function(d) {
-                return d.values.level >= config.show_level;
-            })
-            .classed('pending-children', function(d) {
-                return d.values.level >= config.show_level;
+                return d.values.hasChildren;
             });
 
         lis.append('div')
             .attr('class', 'list-cell group-cell')
             .html(function(d) {
                 return (
-                    '&nbsp;&nbsp;&nbsp;'.repeat(d.values.level > 0 ? d.values.level - 1 : 0) +
+                    '&nbsp;&nbsp;&nbsp;'.repeat(d.values.level > 0 ? d.values.level : 0) +
                     "<span class='group-name'>" +
                     d.key +
                     '</span>'
                 );
-            })
-            .style('background', function(d) {
-                return (
+            });
+
+        /* TODO fake little css barchart - could revive later with option? 
+            .style(
+                'background',
+                d =>
                     'linear-gradient(90deg, #CCC ' +
                     d3.format('.0%')(d.values.percent) +
                     ', #FFF ' +
                     d3.format('.0%')(d.values.percent) +
                     ')'
-                );
-            });
+            );
+            */
 
         var value_cells = lis
             .selectAll('div.value-cell')
@@ -723,29 +772,25 @@
             });
 
         lis.each(function(d) {
-            if (d.values.children.length > 0) {
+            if (d.values.hasChildren) {
+                //iterate (draw the children ul) if requested
+                if (iterate) drawChildren.call(chart, d3.select(this), true);
+
                 //click group-cell to show/hide children
                 d3.select(this)
                     .select('div.group-cell')
                     .on('click', function(d) {
                         var li = d3.select(this.parentNode);
-                        var li_data = li.datum();
 
-                        var pending = li.classed('pending-children');
-                        if (pending) {
-                            drawListLevel.call(chart, li, li_data.values.children, false);
-                            li.classed('pending-children', false);
+                        //if ul exists toggle it's visibility
+                        if (!li.select('ul').empty()) {
+                            var toggle = !li.select('ul').classed('hidden');
+                            li.select('ul').classed('hidden', toggle);
                         }
 
-                        li.classed('hidden-children', !li.classed('hidden-children')); //toggle
+                        //try to draw any children (iteratively, if shift or ctrl is down )
+                        drawChildren.call(chart, li, d3.event.shiftKey || d3.event.ctrlKey);
                     });
-
-                //draw nested lists for children if level is visible
-                if (d.values.level < config.show_level) {
-                    drawListLevel.call(chart, d3.select(this), d.values.children, false);
-                } else {
-                    d3.select(this.parentNode).classed('pending-children', true);
-                }
             }
         });
     }
