@@ -44,10 +44,11 @@ export default function drawSparkline(raw, cell) {
     point_g
         .append('circle')
         .attr('cx', d => spark.x(d.date))
-        .attr('cy', d => y(+d.value))
+        .attr('cy', d => y(d.value))
         .attr('r', spark.rangeband)
-        .attr('fill', 'transparent')
-        .attr('stroke', 'transparent');
+        .attr('fill', '#2b8cbe')
+        .attr('stroke', '#2b8cbe')
+        .classed('hidden', true);
 
     point_g
         .append('rect')
@@ -60,36 +61,61 @@ export default function drawSparkline(raw, cell) {
 
     point_g
         .on('mouseover', function(d) {
-            d3.select(this)
-                .select('circle')
-                .attr('stroke', '#2b8cbe')
-                .attr('fill', '#2b8cbe');
-            //show year label
-            let label = d.date + ' - ' + d.value;
+            // structure is g (this) -> svg -> div.sparkline -> div.value-cell -> li
+            let li_cell = this.parentElement.parentElement.parentElement.parentElement;
+            let valueCells = d3
+                .selectAll(li_cell.children)
+                .filter(function() {
+                    return this.classList.contains('value-cell');
+                })
+                .filter(function(f) {
+                    return f.showSparkline;
+                });
+            /*
+            let valueCells = li.selectAll('div.value-cell').filter(function(f) {
+                return f.showSparkline & (this.parentElement == li_cell);
+            });
+            */
+            let sparklines = valueCells.select('div.sparkline').select('svg');
+            let gs = sparklines.selectAll('g').filter(f => f.date == d.date);
 
-            // g -> svg -> div.sparkline -> div.value-cell
-            let valuecell = d3.select(this.parentElement.parentElement.parentElement);
-            valuecell.select('div.value').classed('hidden', true);
-            let hoverCell = valuecell.append('div').attr('class', 'hover');
-            hoverCell
+            // make circles visible
+            gs.select('circle').classed('hidden', false);
+
+            //show time label
+            valueCells.select('div.value').classed('hidden', true);
+            let hoverCells = valueCells
+                .append('div')
+                .attr('class', 'hover')
+                .datum(function(di) {
+                    let obj = { date: d.date };
+                    let val = di.sparkline.filter(f => f.date == d.date)[0];
+                    obj.formatted = val ? val.formatted : '0';
+                    obj.value = val ? val.value : '0';
+                    return obj;
+                });
+
+            hoverCells
                 .append('div')
                 .attr('class', 'hover-date')
-                .text(d.date);
-            hoverCell
+                .text(function(d) {
+                    return d.date ? d.date : 'No Date';
+                });
+            hoverCells
                 .append('div')
                 .attr('class', 'hover-value')
-                .text(d.value);
+                .text(d => d.formatted);
         })
+
         .on('mouseout', function(d) {
+            let li = this.parentElement.parentElement.parentElement.parentElement;
+            let row = d3.selectAll(li.children);
             //hide point
-            d3.select(this)
-                .select('circle')
-                .attr('stroke', 'transparent')
-                .attr('fill', 'transparent');
-            let valuecell = d3.select(this.parentElement.parentElement.parentElement);
+            row.selectAll('circle').classed('hidden', true);
+
             //show overall value
-            valuecell.select('div.value').classed('hidden', false);
-            valuecell.select('div.hover').remove();
+            row.selectAll('div.value').classed('hidden', false);
+            row.selectAll('div.hover').remove();
         });
 
     //draw outliers

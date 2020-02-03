@@ -155,6 +155,11 @@ li.has-children.hidden-children>ul{
     cursor:help;
 }
 
+
 .hidden{
+    display:none;
+}
+
+circle.hidden{
     display:none;
 }

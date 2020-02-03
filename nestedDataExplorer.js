@@ -417,6 +417,7 @@
         metric_obj.formatted = metric.format
             ? d3.format(metric.format)(metric_obj.value)
             : metric_obj.value;
+        this[metric.label + '_formatted'] = metric_obj.formatted;
         metric_obj.title = metric.calcTitle == undefined ? null : metric.calcTitle.call(this, d);
         return metric_obj;
     }
@@ -466,11 +467,13 @@
                 obj.metrics = [];
                 config.metrics.forEach(function(metric) {
                     var metricObj = calculateMetric.call(obj, metric, d);
+                    metricObj.level = obj.level;
                     if (obj.sparkline != undefined) {
                         metricObj.sparkline = obj.sparkline.map(function(m) {
                             return {
                                 date: m.key,
-                                value: m.values[metricObj.label]
+                                value: m.values[metricObj.label],
+                                formatted: +m.values[metricObj.label + '_formatted']
                             };
                         });
                     }
@@ -496,6 +499,7 @@
                 })
             )
             .values();
+        //  .filter(f => f != 'null');
 
         spark.dates = spark.dates.sort(d3.ascending);
         spark.x = d3.scale
@@ -574,11 +578,12 @@
                 return spark.x(d.date);
             })
             .attr('cy', function(d) {
-                return y(+d.value);
+                return y(d.value);
             })
             .attr('r', spark.rangeband)
-            .attr('fill', 'transparent')
-            .attr('stroke', 'transparent');
+            .attr('fill', '#2b8cbe')
+            .attr('stroke', '#2b8cbe')
+            .classed('hidden', true);
 
         point_g
             .append('rect')
@@ -593,36 +598,66 @@
 
         point_g
             .on('mouseover', function(d) {
-                d3.select(this)
-                    .select('circle')
-                    .attr('stroke', '#2b8cbe')
-                    .attr('fill', '#2b8cbe');
-                //show year label
-                var label = d.date + ' - ' + d.value;
+                // structure is g (this) -> svg -> div.sparkline -> div.value-cell -> li
+                var li_cell = this.parentElement.parentElement.parentElement.parentElement;
+                var valueCells = d3
+                    .selectAll(li_cell.children)
+                    .filter(function() {
+                        return this.classList.contains('value-cell');
+                    })
+                    .filter(function(f) {
+                        return f.showSparkline;
+                    });
+                /*
+            let valueCells = li.selectAll('div.value-cell').filter(function(f) {
+                return f.showSparkline & (this.parentElement == li_cell);
+            });
+            */
+                var sparklines = valueCells.select('div.sparkline').select('svg');
+                var gs = sparklines.selectAll('g').filter(function(f) {
+                    return f.date == d.date;
+                });
 
-                // g -> svg -> div.sparkline -> div.value-cell
-                var valuecell = d3.select(this.parentElement.parentElement.parentElement);
-                valuecell.select('div.value').classed('hidden', true);
-                var hoverCell = valuecell.append('div').attr('class', 'hover');
-                hoverCell
+                // make circles visible
+                gs.select('circle').classed('hidden', false);
+
+                //show time label
+                valueCells.select('div.value').classed('hidden', true);
+                var hoverCells = valueCells
+                    .append('div')
+                    .attr('class', 'hover')
+                    .datum(function(di) {
+                        var obj = { date: d.date };
+                        var val = di.sparkline.filter(function(f) {
+                            return f.date == d.date;
+                        })[0];
+                        obj.formatted = val ? val.formatted : '0';
+                        obj.value = val ? val.value : '0';
+                        return obj;
+                    });
+
+                hoverCells
                     .append('div')
                     .attr('class', 'hover-date')
-                    .text(d.date);
-                hoverCell
+                    .text(function(d) {
+                        return d.date ? d.date : 'No Date';
+                    });
+                hoverCells
                     .append('div')
                     .attr('class', 'hover-value')
-                    .text(d.value);
+                    .text(function(d) {
+                        return d.formatted;
+                    });
             })
             .on('mouseout', function(d) {
+                var li = this.parentElement.parentElement.parentElement.parentElement;
+                var row = d3.selectAll(li.children);
                 //hide point
-                d3.select(this)
-                    .select('circle')
-                    .attr('stroke', 'transparent')
-                    .attr('fill', 'transparent');
-                var valuecell = d3.select(this.parentElement.parentElement.parentElement);
+                row.selectAll('circle').classed('hidden', true);
+
                 //show overall value
-                valuecell.select('div.value').classed('hidden', false);
-                valuecell.select('div.hover').remove();
+                row.selectAll('div.value').classed('hidden', false);
+                row.selectAll('div.hover').remove();
             });
 
         //draw outliers
