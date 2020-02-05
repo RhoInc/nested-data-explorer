@@ -10,6 +10,7 @@ export default function syncSettings(settings) {
     settings.metrics.forEach(function(d) {
         if (d.visible == undefined) d.visible = true;
         if (d.showSparkline == undefined) d.showSparkline = true;
+        if (d.fillEmptyCells == undefined) d.fillEmptyCells = true;
     });
 
     settings.metrics.push({
@@ -18,7 +19,8 @@ export default function syncSettings(settings) {
             return d.length;
         },
         showSparkline: true,
-        visible: settings.hide_count ? false : true
+        visible: settings.hide_count ? false : true,
+        fillEmptyCells: true
     });
 
     settings.metrics.push({
@@ -31,7 +33,8 @@ export default function syncSettings(settings) {
         },
         format: '0.1%',
         showSparkline: false,
-        visible: settings.hide_percent ? false : true
+        visible: settings.hide_percent ? false : true,
+        fillEmptyCells: true
     });
     return settings;
 }

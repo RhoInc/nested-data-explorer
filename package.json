@@ -1,7 +1,7 @@
 {
     "name": "nested-data-explorer",
     "description": "Makes tables for nested tables",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "author": "Rho, Inc.",
     "license": "MIT",
     "homepage": "",

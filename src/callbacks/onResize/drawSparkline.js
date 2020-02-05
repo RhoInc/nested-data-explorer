@@ -1,13 +1,14 @@
-export default function drawSparkline(raw, cell) {
+export default function drawSparkline(raw, cell, fillEmptyCells) {
     let chart = this;
     let spark = this.config.spark;
-    let d = spark.dates.map(function(date) {
-        let obj = { date: date };
-        let match = raw.filter(d => d.date == date);
-        obj.value = match.length > 0 ? match[0].value : 0;
-        return obj;
-    });
-
+    let d = spark.dates
+        .map(function(date) {
+            let obj = { date: date };
+            let match = raw.filter(d => d.date == date);
+            obj.value = match.length > 0 ? match[0].value : fillEmptyCells ? 0 : null;
+            return obj;
+        })
+        .filter(f => f.value != null);
     var y = d3.scale
         .linear()
         .domain(d3.extent(d, d => +d.value))
@@ -41,6 +42,15 @@ export default function drawSparkline(raw, cell) {
         .enter()
         .append('g');
 
+    if (d.length == 1) {
+        point_g
+            .append('circle')
+            .attr('cx', d => spark.x(d.date))
+            .attr('cy', d => y(d.value))
+            .attr('r', spark.rangeband / 2)
+            .attr('fill', '#999')
+            .attr('stroke', '#999');
+    }
     point_g
         .append('circle')
         .attr('cx', d => spark.x(d.date))

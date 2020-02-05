@@ -54,7 +54,7 @@ export default function drawListLevel(wrap, nest, header, iterate) {
             .attr('class', 'sparkline')
             .classed('hidden', d => !d.showSparkline)
             .each(function(d) {
-                drawSparkline.call(chart, d.sparkline, d3.select(this));
+                drawSparkline.call(chart, d.sparkline, d3.select(this), d.fillEmptyCells);
             });
     }
 

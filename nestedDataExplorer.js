@@ -202,6 +202,7 @@
         settings.metrics.forEach(function(d) {
             if (d.visible == undefined) d.visible = true;
             if (d.showSparkline == undefined) d.showSparkline = true;
+            if (d.fillEmptyCells == undefined) d.fillEmptyCells = true;
         });
 
         settings.metrics.push({
@@ -210,7 +211,8 @@
                 return d.length;
             },
             showSparkline: true,
-            visible: settings.hide_count ? false : true
+            visible: settings.hide_count ? false : true,
+            fillEmptyCells: true
         });
 
         settings.metrics.push({
@@ -223,7 +225,8 @@
             },
             format: '0.1%',
             showSparkline: false,
-            visible: settings.hide_percent ? false : true
+            visible: settings.hide_percent ? false : true,
+            fillEmptyCells: true
         });
         return settings;
     }
@@ -408,10 +411,12 @@
     function onDatatransform() {}
 
     function calculateMetric(metric, d) {
+        console.log(metric);
         var metric_obj = {};
         metric_obj.label = metric.label;
         metric_obj.visible = metric.visible;
         metric_obj.showSparkline = metric.showSparkline;
+        metric_obj.fillEmptyCells = metric.fillEmptyCells;
         this[metric.label] = metric.calc.call(this, d);
         metric_obj.value = this[metric.label];
         metric_obj.formatted = metric.format
@@ -520,17 +525,20 @@
         this.nested_data = makeNestLevel.call(this, this.config.groups[0], this.filtered_data);
     }
 
-    function drawSparkline(raw, cell) {
+    function drawSparkline(raw, cell, fillEmptyCells) {
         var spark = this.config.spark;
-        var d = spark.dates.map(function(date) {
-            var obj = { date: date };
-            var match = raw.filter(function(d) {
-                return d.date == date;
+        var d = spark.dates
+            .map(function(date) {
+                var obj = { date: date };
+                var match = raw.filter(function(d) {
+                    return d.date == date;
+                });
+                obj.value = match.length > 0 ? match[0].value : fillEmptyCells ? 0 : null;
+                return obj;
+            })
+            .filter(function(f) {
+                return f.value != null;
             });
-            obj.value = match.length > 0 ? match[0].value : 0;
-            return obj;
-        });
-
         var y = d3.scale
             .linear()
             .domain(
@@ -572,6 +580,19 @@
             .enter()
             .append('g');
 
+        if (d.length == 1) {
+            point_g
+                .append('circle')
+                .attr('cx', function(d) {
+                    return spark.x(d.date);
+                })
+                .attr('cy', function(d) {
+                    return y(d.value);
+                })
+                .attr('r', spark.rangeband / 2)
+                .attr('fill', '#999')
+                .attr('stroke', '#999');
+        }
         point_g
             .append('circle')
             .attr('cx', function(d) {
@@ -792,7 +813,7 @@
                     return !d.showSparkline;
                 })
                 .each(function(d) {
-                    drawSparkline.call(chart, d.sparkline, d3.select(this));
+                    drawSparkline.call(chart, d.sparkline, d3.select(this), d.fillEmptyCells);
                 });
         }
 

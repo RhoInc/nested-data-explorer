@@ -37,7 +37,7 @@
             'USUBJID'
         ],
         metrics: [
-            { label: "Avg. Test Value", calc: d => d3.mean(d, d => d.STRESN), format: "0.1f" },
+            { label: "Avg. Test Value", calc: d => d3.mean(d, d => d.STRESN), format: "0.1f", fillEmptyCells:false },
 
         ],
         date_col: "DT",
