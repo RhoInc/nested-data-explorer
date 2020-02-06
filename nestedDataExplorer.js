@@ -199,6 +199,16 @@
         settings.filters = settings.group_options.filter(function(f) {
             return f.value_col != 'none';
         });
+
+        // sparkline merge
+        if (settings.spark != undefined) {
+            settings.spark.interval = settings.spark.interval || '%Y-%m';
+            settings.spark.width = settings.spark.width || 100;
+            settings.spark.height = settings.spark.height || 25;
+            settings.spark.offset = settings.spark.offset || 3;
+        }
+
+        //clean up in metrics
         settings.metrics.forEach(function(d) {
             if (d.visible == undefined) d.visible = true;
             if (d.showSparkline == undefined) d.showSparkline = true;
@@ -206,30 +216,39 @@
             if (d.type == undefined) d.type = 'line';
         });
 
-        settings.metrics.push({
-            label: 'n',
-            calc: function calc(d) {
-                return d.length;
-            },
-            showSparkline: true,
-            visible: settings.hide_count ? false : true,
-            fillEmptyCells: true,
-            type: 'bar'
+        //merge in default metrics
+        var metricNames = settings.metrics.map(function(m) {
+            return m.label;
         });
 
-        settings.metrics.push({
-            label: '%',
-            calc: function calc(d) {
-                return this.n / this.total;
-            },
-            calcTitle: function calcTitle(d) {
-                return '' + this.n + '/' + this.total;
-            },
-            format: '0.1%',
-            showSparkline: false,
-            visible: settings.hide_percent ? false : true,
-            fillEmptyCells: true
-        });
+        if (metricNames.indexOf('n') == -1) {
+            settings.metrics.push({
+                label: 'n',
+                calc: function calc(d) {
+                    return d.length;
+                },
+                showSparkline: true,
+                visible: settings.hide_count ? false : true,
+                fillEmptyCells: true,
+                type: 'bar'
+            });
+        }
+        if (metricNames.indexOf('%') == -1) {
+            settings.metrics.push({
+                label: '%',
+                calc: function calc(d) {
+                    return this.n / this.total;
+                },
+                calcTitle: function calcTitle(d) {
+                    return '' + this.n + '/' + this.total;
+                },
+                format: '0.1%',
+                showSparkline: false,
+                visible: settings.hide_percent ? false : true,
+                fillEmptyCells: true
+            });
+        }
+
         return settings;
     }
 
