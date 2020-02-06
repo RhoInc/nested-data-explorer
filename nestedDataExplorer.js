@@ -767,7 +767,7 @@
             .append('div')
             .attr('class', 'list-cell value-cell')
             .style('width', function(d) {
-                return config.show_sparklines & d.showSparkline ? 150 : 50;
+                return config.show_sparklines & d.showSparkline ? config.spark.width + 50 : 50;
             })
             .text(function(d) {
                 return d.label;
@@ -849,8 +849,9 @@
             .append('div')
             .attr('class', 'list-cell value-cell')
             .style('width', function(d) {
-                return config.show_sparklines & d.showSparkline ? 150 : 50;
-            });
+                return config.show_sparklines & d.showSparkline ? config.spark.width + 50 : 50;
+            })
+            .style('height', config.spark.height > 25 ? config.spark.height : 25);
 
         if (config.show_sparklines) {
             value_cells

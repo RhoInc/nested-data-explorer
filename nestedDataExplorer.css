@@ -62,8 +62,7 @@
 
 #nde-table div.list-cell{
     display:inline-block;
-    height:26px;
-    vertical-align:bottom;
+    vertical-align:top;
     margin-right:2px;
     padding-bottom:1px;
     padding-left:2px;
@@ -71,11 +70,12 @@
 
 #nde-table div.value-cell *{
     display:inline-block;
+    vertical-align:top;
+
 }
 
 #nde-table div.value-cell div.value{
     width:50px;
-    vertical-align:top;
     text-align: center;
 }
 
