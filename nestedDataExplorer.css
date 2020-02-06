@@ -1,32 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
-* {
-    padding: 0;
-    margin: 0;
-    font-family: 'Open Sans';
-}
-#title {
-    width: 96%;
-    padding: 0 0 12px 0;
-    border-bottom: 2px solid lightgray;
-    margin: 24px 2% 12px 2%;
-    font-size: 32px;
-    font-weight: normal;
-}
-#subtitle {
-    width: 96%;
-    margin: 0 2% 12px 2%;
-    font-size: 24px;
-    font-weight: lighter;
-    position: relative;
-}
 
-#container {
-    width: 96%;
-    margin: 12px 2%;
-    display: inline-block;
-}
-
-div.groupControl{
+#nde-controls div.groupControl{
     border:1px solid #999;
     background: #ccc;
     border-radius:0.2em;
@@ -34,7 +8,7 @@ div.groupControl{
     margin-bottom:0.5em;
 }
 
-div.groupControl>ul>li{
+#nde-controls div.groupControl>ul>li{
     border:1px solid black;
     background:white;
     color:#999;
@@ -44,50 +18,49 @@ div.groupControl>ul>li{
     cursor:pointer;
 }
 
-div.groupControl>ul>li.active{
+#nde-controls div.groupControl>ul>li.active{
     background:#a6bddb;
     color:black;
 }
 
-div.wc-controls .groupControl *{
+#nde-controls .groupControl *{
   display:inline-block;
 }
 
-li.header-row>div{
+#nde-table ul{
+    list-style: none;
+}
+
+#nde-table li>ul{
+    border-top:1px solid #ccc;
+    border-bottom:1px solid #ccc
+}
+
+#nde-table li.header-row>div{
     background:#999;
     color:white;
 }
 
-ul.overall-row ul>li{
+#nde-table ul.overall-row ul>li{
     background: #eee;
     border-top:1px solid #999;
     border-bottom:1px solid #999;
 
 }
-ul{
-    list-style: none;
+
+#nde-table .group-cell{
+    width:300px;
+    white-space:nowrap;
+    overflow-x:hidden;
 }
 
-li>ul{
-    border-top:1px solid #ccc;
-    border-bottom:1px solid #ccc
-}
-
-li{
-    display:table;
-}
-
-span.addGroupControl{
-    padding:0.1em 0.3em;
-    margin-left:0.5em;
+#nde-table li.has-children>div.group-cell span.group-name{
+    color:blue;
+    text-decoration: underline;
     cursor:pointer;
-    border:1px solid black;
-    border-radius:0.3em;
-    background:white;
-    font-weight: bolder;
 }
 
-.list-cell{
+#nde-table div.list-cell{
     display:inline-block;
     height:26px;
     vertical-align:bottom;
@@ -96,75 +69,41 @@ span.addGroupControl{
     padding-left:2px;
 }
 
-.list-cell .value{
+#nde-table div.value-cell *{
+    display:inline-block;
+}
+
+#nde-table div.value-cell div.value{
     width:50px;
     vertical-align:top;
     text-align: center;
 }
 
-.group-cell{
-    width:300px;
-    white-space:nowrap;
-    overflow-x:hidden;
+#nde-table div.value-cell div.sparkline rect.bar.highlight{
+    fill:#2b8cbe;
+    stroke:#2b8cbe;
 }
 
-li.has-children>div.group-cell span.group-name{
-    color:blue;
-    text-decoration: underline;
-    cursor:pointer;
-}
-
-li.has-children.hidden-children>ul{
-    display:none;
-}
-
-.value-cell{
-    overflow:hidden;
-    text-align:center;
-}
-
-.hover{
+#nde-table div.value-cell div.hover{
    height:23px;
    width:50px;
    text-align: center;
 }
 
-.hover-date{
+#nde-table div.value-cell div.hover div.hover-date{
     width:100%;
     height:9px;
     font-size:9px;
     color: #999;
 }
 
-.hover-value{
+#nde-table div.value-cell div.hover div.hover-value{
     width:100%;
     height:14px;
     font-size:14px;
     color: #2b8cbe;
 }
 
-.value-cell *{
-    display:inline-block;
-}
-
-.group-n{
-    width:50px;
-}
-.group-percent{
-    width:50px;
-    cursor:help;
-}
-
-
-.hidden{
+#nde-table .hidden, #nde-table circle.hidden, #nde-table div.hidden{
     display:none;
-}
-
-circle.hidden{
-    display:none;
-}
-
-rect.bar.highlight{
-    fill:#2b8cbe;
-    stroke:#2b8cbe;
 }

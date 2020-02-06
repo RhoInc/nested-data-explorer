@@ -927,15 +927,15 @@
         container
             .append('div')
             .classed('wc-component', true)
-            .attr('id', 'wc-controls');
+            .attr('id', 'nde-controls');
         container
             .append('div')
             .classed('wc-component', true)
-            .attr('id', 'wc-chart');
+            .attr('id', 'nde-table');
         container
             .append('div')
             .classed('wc-component', true)
-            .attr('id', 'wc-listing');
+            .attr('id', 'nde-details');
     }
 
     function styles() {
@@ -970,14 +970,14 @@
             syncedSettings
         );
         var controls = webcharts.createControls(
-            document.querySelector(element).querySelector('#wc-controls'),
+            document.querySelector(element).querySelector('#nde-controls'),
             {
                 location: 'top',
                 inputs: syncedControlInputs
             }
         );
         var chart = webcharts.createChart(
-            document.querySelector(element).querySelector('#wc-chart'),
+            document.querySelector(element).querySelector('#nde-table'),
             syncedSettings,
             controls
         );
@@ -987,7 +987,7 @@
             chart.on(callback.substring(2).toLowerCase(), callbacks[callback]);
         } //listing
         var listing = webcharts.createTable(
-            document.querySelector(element).querySelector('#wc-listing'),
+            document.querySelector(element).querySelector('#nde-details'),
             configuration.listingSettings()
         );
         listing.wrap.style('display', 'none'); // empty table's popping up briefly

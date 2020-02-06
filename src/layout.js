@@ -5,13 +5,13 @@ export default function layout(element) {
     container
         .append('div')
         .classed('wc-component', true)
-        .attr('id', 'wc-controls');
+        .attr('id', 'nde-controls');
     container
         .append('div')
         .classed('wc-component', true)
-        .attr('id', 'wc-chart');
+        .attr('id', 'nde-table');
     container
         .append('div')
         .classed('wc-component', true)
-        .attr('id', 'wc-listing');
+        .attr('id', 'nde-details');
 }

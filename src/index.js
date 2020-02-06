@@ -20,12 +20,15 @@ export default function nestedDataExplorer(element = 'body', settings = {}) {
         configuration.controlInputs(),
         syncedSettings
     );
-    const controls = createControls(document.querySelector(element).querySelector('#wc-controls'), {
-        location: 'top',
-        inputs: syncedControlInputs
-    });
+    const controls = createControls(
+        document.querySelector(element).querySelector('#nde-controls'),
+        {
+            location: 'top',
+            inputs: syncedControlInputs
+        }
+    );
     const chart = createChart(
-        document.querySelector(element).querySelector('#wc-chart'),
+        document.querySelector(element).querySelector('#nde-table'),
         syncedSettings,
         controls
     );
@@ -36,7 +39,7 @@ export default function nestedDataExplorer(element = 'body', settings = {}) {
 
     //listing
     const listing = createTable(
-        document.querySelector(element).querySelector('#wc-listing'),
+        document.querySelector(element).querySelector('#nde-details'),
         configuration.listingSettings()
     );
     listing.wrap.style('display', 'none'); // empty table's popping up briefly
