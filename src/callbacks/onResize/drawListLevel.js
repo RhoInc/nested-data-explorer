@@ -67,6 +67,20 @@ export default function drawListLevel(wrap, nest, header, iterate) {
         .text(d => d.formatted)
         .attr('title', d => (d.title ? d.title : null));
 
+    value_cells
+        .filter(f => f.label == 'n')
+        .select('div.value')
+        .classed('listing-click', true)
+        .on('click', function(d) {
+            chart.listing.wrap.classed('hidden', false);
+            chart.listing.wrap
+                .select('h3')
+                .text('Showing ' + d.raw.length + ' records for ' + d.keyDesc);
+            chart.listing.draw(d.raw);
+            chart.wrap.classed('hidden', true);
+            chart.controls.wrap.classed('hidden', true);
+        });
+
     lis.each(function(d) {
         if (d.values.hasChildren) {
             //iterate (draw the children ul) if requested

@@ -44,6 +44,7 @@ export default function makeNestLevel(key, data, iterate) {
             config.metrics.forEach(function(metric) {
                 let metricObj = calculateMetric.call(obj, metric, d);
                 metricObj.level = obj.level;
+                metricObj.keyDesc = key + ' = ' + d[0][key];
                 if (obj.sparkline != undefined) {
                     metricObj.sparkline = obj.sparkline.map(m => ({
                         date: m.key,

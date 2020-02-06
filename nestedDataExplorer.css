@@ -54,7 +54,7 @@
     overflow-x:hidden;
 }
 
-#nde-table li.has-children>div.group-cell span.group-name{
+#nde-table li.has-children>div.group-cell span.group-name, #nde-table .listing-click{
     color:blue;
     text-decoration: underline;
     cursor:pointer;
@@ -104,6 +104,19 @@
     color: #2b8cbe;
 }
 
-#nde-table .hidden, #nde-table circle.hidden, #nde-table div.hidden{
+#nde-table .hidden, #nde-table circle.hidden, #nde-table div.hidden, #nde-details .hidden, #nde-controls .hidden{
     display:none;
+}
+
+#nde-details div.closeDetails span{
+    border:1px solid black;
+    background:white;
+    color:black;
+    border-radius:0.2em;
+    padding:0.2em 0.5em;
+    cursor:pointer;
+}
+
+#nde-details div.closeDetails {
+    margin-bottom:1em;
 }

@@ -280,11 +280,11 @@
 
     function listingSettings() {
         return {
-            cols: ['ID', 'Measure', 'Visit', 'Value'],
-            searchable: false,
-            sortable: false,
-            pagination: false,
-            exportable: false
+            cols: null,
+            searchable: true,
+            sortable: true,
+            pagination: true,
+            exportable: true
         };
     }
 
@@ -318,9 +318,31 @@
         }
     }
 
+    function initListing() {
+        var chart = this;
+        var configCols = ['overall', 'date_parsed', 'date_interval'];
+        this.listing.config.cols = Object.keys(this.initial_data[0]).filter(function(f) {
+            return configCols.indexOf(f) == -1;
+        });
+        this.listing.init([]);
+        this.listing.wrap.insert('h3', '*');
+        this.listing.wrap
+            .insert('div', '*')
+            .attr('class', 'closeDetails')
+            .append('span')
+            .text('<< Return to Table')
+            .on('click', function() {
+                chart.listing.wrap.classed('hidden', true);
+                chart.wrap.classed('hidden', false);
+                chart.controls.wrap.classed('hidden', false);
+            });
+        this.listing.wrap.classed('hidden', true);
+    }
+
     function onInit() {
         makeOverall.call(this);
         makeDateInterval.call(this);
+        initListing.call(this);
     }
 
     function updateGroupControl() {
@@ -445,6 +467,7 @@
             : metric_obj.value;
         this[metric.label + '_formatted'] = metric_obj.formatted;
         metric_obj.title = metric.calcTitle == undefined ? null : metric.calcTitle.call(this, d);
+        metric_obj.raw = d;
         return metric_obj;
     }
 
@@ -494,6 +517,7 @@
                 config.metrics.forEach(function(metric) {
                     var metricObj = calculateMetric.call(obj, metric, d);
                     metricObj.level = obj.level;
+                    metricObj.keyDesc = key + ' = ' + d[0][key];
                     if (obj.sparkline != undefined) {
                         metricObj.sparkline = obj.sparkline.map(function(m) {
                             return {
@@ -542,6 +566,9 @@
     }
 
     function onDraw() {
+        chart.listing.wrap.classed('hidden', true);
+        chart.wrap.classed('hidden', false);
+        chart.controls.wrap.classed('hidden', false);
         makeDateScale.call(this);
         this.nested_data = makeNestLevel.call(this, this.config.groups[0], this.filtered_data);
     }
@@ -884,6 +911,22 @@
                 return d.title ? d.title : null;
             });
 
+        value_cells
+            .filter(function(f) {
+                return f.label == 'n';
+            })
+            .select('div.value')
+            .classed('listing-click', true)
+            .on('click', function(d) {
+                chart.listing.wrap.classed('hidden', false);
+                chart.listing.wrap
+                    .select('h3')
+                    .text('Showing ' + d.raw.length + ' records for ' + d.keyDesc);
+                chart.listing.draw(d.raw);
+                chart.wrap.classed('hidden', true);
+                chart.controls.wrap.classed('hidden', true);
+            });
+
         lis.each(function(d) {
             if (d.values.hasChildren) {
                 //iterate (draw the children ul) if requested
@@ -916,7 +959,6 @@
 
     function onResize() {
         this.wrap.select('svg').style('display', 'none');
-        this.list.selectAll('*').remove();
 
         if (this.filtered_data.length > 0) {
             drawListLevel.call(this, this.list, this.nested_data, true);
@@ -1010,8 +1052,6 @@
             document.querySelector(element).querySelector('#nde-details'),
             configuration.listingSettings()
         );
-        listing.wrap.style('display', 'none'); // empty table's popping up briefly
-        listing.init([]);
         chart.listing = listing;
         listing.chart = chart;
 

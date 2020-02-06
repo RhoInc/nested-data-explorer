@@ -1,9 +1,9 @@
 export default function listingSettings() {
     return {
-        cols: ['ID', 'Measure', 'Visit', 'Value'],
-        searchable: false,
-        sortable: false,
-        pagination: false,
-        exportable: false
+        cols: null,
+        searchable: true,
+        sortable: true,
+        pagination: true,
+        exportable: true
     };
 }

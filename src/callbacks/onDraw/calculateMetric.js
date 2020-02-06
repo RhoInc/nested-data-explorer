@@ -12,5 +12,6 @@ export default function calculateMetric(metric, d) {
         : metric_obj.value;
     this[metric.label + '_formatted'] = metric_obj.formatted;
     metric_obj.title = metric.calcTitle == undefined ? null : metric.calcTitle.call(this, d);
+    metric_obj.raw = d;
     return metric_obj;
 }

@@ -42,8 +42,6 @@ export default function nestedDataExplorer(element = 'body', settings = {}) {
         document.querySelector(element).querySelector('#nde-details'),
         configuration.listingSettings()
     );
-    listing.wrap.style('display', 'none'); // empty table's popping up briefly
-    listing.init([]);
     chart.listing = listing;
     listing.chart = chart;
 
