@@ -959,7 +959,7 @@
 
     function onResize() {
         this.wrap.select('svg').style('display', 'none');
-
+        this.list.selectAll('*').remove();
         if (this.filtered_data.length > 0) {
             drawListLevel.call(this, this.list, this.nested_data, true);
             if (this.config.show_overall) drawOverall.call(this);
