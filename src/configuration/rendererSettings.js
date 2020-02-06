@@ -14,7 +14,7 @@ export default function rendererSettings() {
             interval: '%Y-%m',
             width: 100,
             height: 25,
-            offset: 4
+            offset: 3
         },
         filters: [] //updated in sync settings
     };

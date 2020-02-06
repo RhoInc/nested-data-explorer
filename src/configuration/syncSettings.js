@@ -11,6 +11,7 @@ export default function syncSettings(settings) {
         if (d.visible == undefined) d.visible = true;
         if (d.showSparkline == undefined) d.showSparkline = true;
         if (d.fillEmptyCells == undefined) d.fillEmptyCells = true;
+        if (d.type == undefined) d.type = 'line';
     });
 
     settings.metrics.push({
@@ -20,7 +21,8 @@ export default function syncSettings(settings) {
         },
         showSparkline: true,
         visible: settings.hide_count ? false : true,
-        fillEmptyCells: true
+        fillEmptyCells: true,
+        type: 'bar'
     });
 
     settings.metrics.push({

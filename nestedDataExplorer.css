@@ -163,3 +163,8 @@ li.has-children.hidden-children>ul{
 circle.hidden{
     display:none;
 }
+
+rect.bar.highlight{
+    fill:#2b8cbe;
+    stroke:#2b8cbe;
+}

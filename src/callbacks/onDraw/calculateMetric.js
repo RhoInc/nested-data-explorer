@@ -3,6 +3,7 @@ export default function calculateMetric(metric, d) {
     metric_obj.label = metric.label;
     metric_obj.visible = metric.visible;
     metric_obj.showSparkline = metric.showSparkline;
+    metric_obj.type = metric.type;
     metric_obj.fillEmptyCells = metric.fillEmptyCells;
     this[metric.label] = metric.calc.call(this, d);
     metric_obj.value = this[metric.label];

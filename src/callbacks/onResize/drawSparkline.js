@@ -1,6 +1,9 @@
-export default function drawSparkline(raw, cell, fillEmptyCells) {
+import lineHover from './lineHover';
+
+export default function drawSparkline(raw, cell, fillEmptyCells, type) {
     let chart = this;
     let spark = this.config.spark;
+    if (type == undefined) type = 'line';
     let d = spark.dates
         .map(function(date) {
             let obj = { date: date };
@@ -20,27 +23,21 @@ export default function drawSparkline(raw, cell, fillEmptyCells) {
         height: spark.height
     });
 
-    var draw_sparkline = d3.svg
-        .line()
-        .interpolate('linear')
-        .x(d => spark.x(d.date))
-        .y(d => y(+d.value));
-
-    var sparkline = svg
-        .append('path')
-        .datum(d)
-        .attr({
-            class: 'sparkLine',
-            d: draw_sparkline,
-            fill: 'none',
-            stroke: '#999'
-        });
-
     var point_g = svg
         .selectAll('g')
         .data(d)
         .enter()
         .append('g');
+    //transparent overlay to catch mouseover
+    point_g
+        .append('rect')
+        .attr('class', 'overlay')
+        .attr('height', spark.height)
+        .attr('width', spark.rangeband)
+        .attr('x', d => spark.x(d.date) - spark.rangeband / 2)
+        .attr('y', 0)
+        .attr('stroke', 'transparent')
+        .attr('fill', 'transparent');
 
     if (d.length == 1) {
         point_g
@@ -51,82 +48,47 @@ export default function drawSparkline(raw, cell, fillEmptyCells) {
             .attr('fill', '#999')
             .attr('stroke', '#999');
     }
-    point_g
-        .append('circle')
-        .attr('cx', d => spark.x(d.date))
-        .attr('cy', d => y(d.value))
-        .attr('r', spark.rangeband)
-        .attr('fill', '#2b8cbe')
-        .attr('stroke', '#2b8cbe')
-        .classed('hidden', true);
 
-    point_g
-        .append('rect')
-        .attr('height', spark.height)
-        .attr('width', spark.rangeband)
-        .attr('x', d => spark.x(d.date) - spark.rangeband / 2)
-        .attr('y', 0)
-        .attr('stroke', 'transparent')
-        .attr('fill', 'transparent');
+    if (type == 'line') {
+        var draw_sparkline = d3.svg
+            .line()
+            .interpolate('linear')
+            .x(d => spark.x(d.date))
+            .y(d => y(+d.value));
 
-    point_g
-        .on('mouseover', function(d) {
-            // structure is g (this) -> svg -> div.sparkline -> div.value-cell -> li
-            let li_cell = this.parentElement.parentElement.parentElement.parentElement;
-            let valueCells = d3
-                .selectAll(li_cell.children)
-                .filter(function() {
-                    return this.classList.contains('value-cell');
-                })
-                .filter(function(f) {
-                    return f.showSparkline;
-                });
-            /*
-            let valueCells = li.selectAll('div.value-cell').filter(function(f) {
-                return f.showSparkline & (this.parentElement == li_cell);
+        var sparkline = svg
+            .append('path')
+            .datum(d)
+            .attr({
+                class: 'sparkLine',
+                d: draw_sparkline,
+                fill: 'none',
+                stroke: '#999'
             });
-            */
-            let sparklines = valueCells.select('div.sparkline').select('svg');
-            let gs = sparklines.selectAll('g').filter(f => f.date == d.date);
 
-            // make circles visible
-            gs.select('circle').classed('hidden', false);
+        point_g
+            .append('circle')
+            .attr('cx', d => spark.x(d.date))
+            .attr('cy', d => y(d.value))
+            .attr('r', spark.rangeband)
+            .attr('fill', '#2b8cbe')
+            .attr('stroke', '#2b8cbe')
+            .classed('hidden', true);
+    }
 
-            //show time label
-            valueCells.select('div.value').classed('hidden', true);
-            let hoverCells = valueCells
-                .append('div')
-                .attr('class', 'hover')
-                .datum(function(di) {
-                    let obj = { date: d.date };
-                    let val = di.sparkline.filter(f => f.date == d.date)[0];
-                    obj.formatted = val ? val.formatted : '0';
-                    obj.value = val ? val.value : '0';
-                    return obj;
-                });
+    if (type == 'bar') {
+        point_g
+            .append('rect')
+            .attr('class', 'bar')
+            .attr('y', d => y(d.value))
+            .attr('width', spark.rangeband)
+            .attr('x', d => spark.x(d.date) - spark.rangeband / 2)
+            .attr('height', d => spark.height - spark.offset - y(d.value))
+            .attr('stroke', '#999')
+            .attr('fill', '#999');
+    }
 
-            hoverCells
-                .append('div')
-                .attr('class', 'hover-date')
-                .text(function(d) {
-                    return d.date ? d.date : 'No Date';
-                });
-            hoverCells
-                .append('div')
-                .attr('class', 'hover-value')
-                .text(d => d.formatted);
-        })
-
-        .on('mouseout', function(d) {
-            let li = this.parentElement.parentElement.parentElement.parentElement;
-            let row = d3.selectAll(li.children);
-            //hide point
-            row.selectAll('circle').classed('hidden', true);
-
-            //show overall value
-            row.selectAll('div.value').classed('hidden', false);
-            row.selectAll('div.hover').remove();
-        });
+    lineHover.call(this, point_g);
 
     //draw outliers
     /*
