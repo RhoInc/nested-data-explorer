@@ -1,5 +1,16 @@
-export default function lineHover(point_g) {
+import drawListing from './drawListing';
+
+export default function lineEvents(point_g) {
+    let chart = this;
     point_g
+        .on('click', function(d) {
+            let value_cell = this.parentElement.parentElement.parentElement;
+            let cell_d = d3.select(value_cell).datum();
+
+            let raw = cell_d['raw'].filter(f => f.date_interval == d.date);
+            let label = cell_d['keyDesc'] + ' for time = ' + d.date;
+            drawListing.call(chart, raw, label);
+        })
         .on('mouseover', function(d) {
             // structure is g (this) -> svg -> div.sparkline -> div.value-cell -> li
             let li_cell = this.parentElement.parentElement.parentElement.parentElement;
@@ -11,11 +22,7 @@ export default function lineHover(point_g) {
                 .filter(function(f) {
                     return f.showSparkline;
                 });
-            /*
-            let valueCells = li.selectAll('div.value-cell').filter(function(f) {
-                return f.showSparkline & (this.parentElement == li_cell);
-            });
-            */
+
             let sparklines = valueCells.select('div.sparkline').select('svg');
             let gs = sparklines.selectAll('g').filter(f => f.date == d.date);
 

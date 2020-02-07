@@ -1,6 +1,7 @@
 import drawSparkline from './drawSparkline';
 import drawHeader from './drawHeader';
 import drawChildren from './drawChildren';
+import drawListing from './drawListing';
 
 export default function drawListLevel(wrap, nest, header, iterate) {
     let chart = this;
@@ -72,13 +73,7 @@ export default function drawListLevel(wrap, nest, header, iterate) {
         .select('div.value')
         .classed('listing-click', true)
         .on('click', function(d) {
-            chart.listing.wrap.classed('hidden', false);
-            chart.listing.wrap
-                .select('h3')
-                .text('Showing ' + d.raw.length + ' records for ' + d.keyDesc);
-            chart.listing.draw(d.raw);
-            chart.wrap.classed('hidden', true);
-            chart.controls.wrap.classed('hidden', true);
+            drawListing.call(chart, d.raw, d.keyDesc);
         });
 
     lis.each(function(d) {

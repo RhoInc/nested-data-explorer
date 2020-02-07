@@ -1,4 +1,4 @@
-import lineHover from './lineHover';
+import lineEvents from './lineEvents';
 
 export default function drawSparkline(raw, cell, fillEmptyCells, type) {
     let chart = this;
@@ -88,7 +88,7 @@ export default function drawSparkline(raw, cell, fillEmptyCells, type) {
             .attr('fill', '#999');
     }
 
-    lineHover.call(this, point_g);
+    lineEvents.call(this, point_g);
 
     //draw outliers
     /*

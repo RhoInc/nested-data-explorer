@@ -573,8 +573,28 @@
         this.nested_data = makeNestLevel.call(this, this.config.groups[0], this.filtered_data);
     }
 
-    function lineHover(point_g) {
+    function drawListing(d, label) {
+        var chart = this;
+        chart.listing.wrap.classed('hidden', false);
+        chart.listing.wrap.select('h3').text('Showing ' + d.length + ' records for ' + label);
+        chart.listing.draw(d);
+        chart.wrap.classed('hidden', true);
+        chart.controls.wrap.classed('hidden', true);
+    }
+
+    function lineEvents(point_g) {
+        var chart = this;
         point_g
+            .on('click', function(d) {
+                var value_cell = this.parentElement.parentElement.parentElement;
+                var cell_d = d3.select(value_cell).datum();
+
+                var raw = cell_d['raw'].filter(function(f) {
+                    return f.date_interval == d.date;
+                });
+                var label = cell_d['keyDesc'] + ' for time = ' + d.date;
+                drawListing.call(chart, raw, label);
+            })
             .on('mouseover', function(d) {
                 // structure is g (this) -> svg -> div.sparkline -> div.value-cell -> li
                 var li_cell = this.parentElement.parentElement.parentElement.parentElement;
@@ -586,11 +606,7 @@
                     .filter(function(f) {
                         return f.showSparkline;
                     });
-                /*
-            let valueCells = li.selectAll('div.value-cell').filter(function(f) {
-                return f.showSparkline & (this.parentElement == li_cell);
-            });
-            */
+
                 var sparklines = valueCells.select('div.sparkline').select('svg');
                 var gs = sparklines.selectAll('g').filter(function(f) {
                     return f.date == d.date;
@@ -756,7 +772,7 @@
                 .attr('fill', '#999');
         }
 
-        lineHover.call(this, point_g);
+        lineEvents.call(this, point_g);
 
         //draw outliers
         /*
@@ -918,13 +934,7 @@
             .select('div.value')
             .classed('listing-click', true)
             .on('click', function(d) {
-                chart.listing.wrap.classed('hidden', false);
-                chart.listing.wrap
-                    .select('h3')
-                    .text('Showing ' + d.raw.length + ' records for ' + d.keyDesc);
-                chart.listing.draw(d.raw);
-                chart.wrap.classed('hidden', true);
-                chart.controls.wrap.classed('hidden', true);
+                drawListing.call(chart, d.raw, d.keyDesc);
             });
 
         lis.each(function(d) {
