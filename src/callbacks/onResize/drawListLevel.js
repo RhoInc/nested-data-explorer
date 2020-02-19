@@ -18,8 +18,10 @@ export default function drawListLevel(wrap, nest, header, iterate) {
         .attr('class', 'value-row')
         .classed('has-children', d => d.values.hasChildren);
 
-    lis.append('div')
+    let group_cells = lis
+        .append('div')
         .attr('class', 'list-cell group-cell')
+        .property('title', d => d.key)
         .html(
             d =>
                 '&nbsp;&nbsp;&nbsp;'.repeat(d.values.level > 0 ? d.values.level : 0) +
@@ -75,7 +77,6 @@ export default function drawListLevel(wrap, nest, header, iterate) {
         .on('click', function(d) {
             drawListing.call(chart, d.raw, d.keyDesc);
         });
-
     lis.each(function(d) {
         if (d.values.hasChildren) {
             //iterate (draw the children ul) if requested

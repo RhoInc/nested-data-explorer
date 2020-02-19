@@ -860,8 +860,12 @@
                 return d.values.hasChildren;
             });
 
-        lis.append('div')
+        var group_cells = lis
+            .append('div')
             .attr('class', 'list-cell group-cell')
+            .property('title', function(d) {
+                return d.key;
+            })
             .html(function(d) {
                 return (
                     '&nbsp;&nbsp;&nbsp;'.repeat(d.values.level > 0 ? d.values.level : 0) +
@@ -938,7 +942,6 @@
             .on('click', function(d) {
                 drawListing.call(chart, d.raw, d.keyDesc);
             });
-
         lis.each(function(d) {
             if (d.values.hasChildren) {
                 //iterate (draw the children ul) if requested

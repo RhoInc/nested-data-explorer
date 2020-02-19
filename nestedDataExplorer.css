@@ -52,6 +52,7 @@
     width:300px;
     white-space:nowrap;
     overflow-x:hidden;
+    text-overflow: ellipsis;
 }
 
 #nde-table li.has-children>div.group-cell span.group-name, #nde-table .listing-click{
