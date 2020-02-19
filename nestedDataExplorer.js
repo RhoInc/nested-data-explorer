@@ -534,7 +534,9 @@
             })
             .entries(data)
             .sort(function(a, b) {
-                return config.sort_alpha ? b.key - a.key : b.values.n - a.values.n;
+                var alpha = a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
+                var numeric = b.values.n - a.values.n;
+                return config.sort_alpha ? alpha : numeric;
             });
 
         return myNest;

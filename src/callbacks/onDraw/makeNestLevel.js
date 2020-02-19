@@ -59,7 +59,9 @@ export default function makeNestLevel(key, data, iterate) {
         })
         .entries(data)
         .sort(function(a, b) {
-            return config.sort_alpha ? b.key - a.key : b.values.n - a.values.n;
+            let alpha = a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
+            let numeric = b.values.n - a.values.n;
+            return config.sort_alpha ? alpha : numeric;
         });
 
     return myNest;
