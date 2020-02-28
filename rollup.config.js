@@ -20,15 +20,11 @@ module.exports = {
         format: 'umd',
         globals: {
             d3: 'd3',
-            webcharts: 'webCharts'
+            webcharts: 'webCharts',
+            sortablejs: 'sortablejs',
         },
     },
-    external: (function() {
-        var dependencies = Object.keys(pkg.dependencies)
-            .filter(dependency => dependency !== 'regression');
-
-        return dependencies;
-    }()),
+    external: Object.keys(pkg.dependencies).filter(key => key !== 'sortablejs'),
     plugins: [
         json({
             include: ['settings-schema.json']

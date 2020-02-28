@@ -15,5 +15,7 @@ export default function drawHeader(ul) {
         .style('width', d =>
             config.show_sparklines & d.showSparkline ? config.spark.width + 50 : 50
         )
+        .append('div')
+        .classed('value', true)
         .text(d => d.label);
 }

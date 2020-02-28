@@ -30,6 +30,7 @@ export default function syncSettings(settings) {
             calc: function(d) {
                 return d.length;
             },
+            format: ',1d',
             showSparkline: true,
             visible: settings.hide_count ? false : true,
             fillEmptyCells: true,
