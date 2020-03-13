@@ -35,7 +35,7 @@ export default function makeNestLevel(key, data, iterate) {
                 obj.childrenStatus = 'none';
             }
 
-            // get data for the sparkline (but don't do this if you'e already calculating sparkline data)
+            // get data for the sparkline (but don't do this if you're already calculating sparkline data)
             if ((key != 'date_interval') & config.show_sparklines)
                 obj.sparkline = makeNestLevel.call(chart, 'date_interval', d);
 
@@ -49,7 +49,7 @@ export default function makeNestLevel(key, data, iterate) {
                     metricObj.sparkline = obj.sparkline.map(m => ({
                         date: m.key,
                         value: m.values[metricObj.label],
-                        formatted: +m.values[metricObj.label + '_formatted']
+                        formatted: m.values[metricObj.label + '_formatted']
                     }));
                 }
                 obj.metrics.push(metricObj);
