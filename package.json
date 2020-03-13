@@ -2,6 +2,7 @@
     "name": "nested-data-explorer",
     "description": "Makes tables for nested tables",
     "version": "0.4.4",
+
     "author": "Rho, Inc.",
     "license": "MIT",
     "homepage": "",
@@ -12,6 +13,7 @@
     ],
     "dependencies": {
         "d3": "^3",
+        "sortablejs": "^1.10.2",
         "webcharts": "^1.11.6"
     },
     "scripts": {

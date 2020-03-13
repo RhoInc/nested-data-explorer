@@ -1,5 +1,6 @@
 import './util/polyfills';
 import './util/moveTo';
+
 import configuration from './configuration/index';
 import { createChart, createControls, createTable } from 'webcharts';
 import callbacks from './callbacks/index';
