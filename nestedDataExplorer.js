@@ -156,7 +156,7 @@
             metrics: [],
             show_count: true,
             show_percent: true,
-            sort_alpha: false,
+            sort_alpha: true,
             show_sparklines: false,
             date_col: null,
             date_format: null, //if specified, will attempt to parse date_col with d3.time.format(date_format)
@@ -4163,10 +4163,15 @@
             .append('div')
             .attr('class', 'list-cell value-cell')
             .style('width', function(d) {
-                return config.show_sparklines & d.showSparkline ? config.spark.width + 50 : 50;
+                console.log(d);
+                return (
+                    (config.show_sparklines && d.showSparkline ? config.spark.width + 50 : 50) +
+                    'px'
+                );
             })
             .append('div')
             .classed('value', true)
+            .style('width', '100%')
             .text(function(d) {
                 return d.label;
             });

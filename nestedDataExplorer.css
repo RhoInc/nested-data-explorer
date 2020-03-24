@@ -41,6 +41,25 @@
     color:white;
 }
 
+li.value-row .group-cell {
+}
+li.value-row:hover .group-cell {
+    font-weight: bold;
+    color: #2b8cbe;
+}
+li.value-row .group-cell .group-name {
+    display: inline-block;
+    letter-spacing: 1px;
+    text-align: left;
+    white-space: nowrap;
+    width: 0;
+    transition: width .8s ease;
+}
+li.value-row:hover .group-cell .group-name {
+    width: 100%;
+    text-align: right;
+}
+
 #nde-table ul.overall-row ul>li{
     background: #eee;
     border-top:1px solid #999;

@@ -12,10 +12,14 @@ export default function drawHeader(ul) {
         .enter()
         .append('div')
         .attr('class', 'list-cell value-cell')
-        .style('width', d =>
-            config.show_sparklines & d.showSparkline ? config.spark.width + 50 : 50
-        )
+        .style('width', d => {
+            console.log(d);
+            return (
+                (config.show_sparklines && d.showSparkline ? config.spark.width + 50 : 50) + 'px'
+            );
+        })
         .append('div')
         .classed('value', true)
+        .style('width', '100%')
         .text(d => d.label);
 }
