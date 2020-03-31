@@ -5,7 +5,9 @@ export default function rendererSettings() {
         metrics: [],
         show_count: true,
         show_percent: true,
-        sort_alpha: true,
+        sort_alpha: false,
+        sort_direction: 'descending',
+        sort_column: 'n',
         show_sparklines: false,
         date_col: null,
         date_format: null, //if specified, will attempt to parse date_col with d3.time.format(date_format)

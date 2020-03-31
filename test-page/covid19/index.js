@@ -50,6 +50,7 @@ fetch('https://covidtracking.com/api/states/daily')
         const instance = new nestedDataExplorer(
             '#container',
             {
+                sort_column: 'Cases',
                 group_options: [
                     { value_col: 'state', label: 'State' },
                 ],

@@ -1,142 +1,165 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
 
-#nde-controls div.groupControl{
-    border:1px solid #999;
+/* Group By: */
+
+#nde-controls div.groupControl {
+    border: 1px solid #999;
     background: #ccc;
-    border-radius:0.2em;
-    padding:0.5em;
-    margin-bottom:0.5em;
+    border-radius: 0.2em;
+    padding: 0.5em;
+    margin-bottom: 0.5em;
+}
+#nde-controls div.groupControl > ul > li {
+    border: 1px solid black;
+    background: white;
+    color: #999;
+    border-radius: 0.2em;
+    padding: 0.2em 0.5em;
+    margin-left: 0.2em;
+    cursor: pointer;
+}
+#nde-controls div.groupControl > ul > li.active {
+    background: #a6bddb;
+    color: black;
+}
+#nde-controls .groupControl * {
+  display: inline-block;
 }
 
-#nde-controls div.groupControl>ul>li{
-    border:1px solid black;
-    background:white;
-    color:#999;
-    border-radius:0.2em;
-    padding:0.2em 0.5em;
-    margin-left:0.2em;
-    cursor:pointer;
-}
+/* Table */
 
-#nde-controls div.groupControl>ul>li.active{
-    background:#a6bddb;
-    color:black;
+#nde-table .wc-chart {
+    overflow-x: auto;
 }
-
-#nde-controls .groupControl *{
-  display:inline-block;
-}
-
-#nde-table ul{
+#nde-table ul {
     list-style: none;
 }
-
-#nde-table li>ul{
-    border-top:1px solid #ccc;
-    border-bottom:1px solid #ccc
+#nde-table .nested-data-explorer > ul.one-list-to-rule-them-all,
+#nde-table .nested-data-explorer > ul.overall-row {
+    display: inline-block;
+    white-space: nowrap;
+    float: left;
+    clear: left;
 }
 
-#nde-table li.header-row>div{
-    background:#999;
-    color:white;
+#nde-table li > ul {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc
 }
 
-li.value-row .group-cell {
+#nde-table li.header-row > div.list-cell {
+    background: #999;
+    color: white;
+    cursor: pointer;
+    position: relative;
 }
-li.value-row:hover .group-cell {
+#nde-table li.header-row > div.list-cell > span.sort-direction {
+    position: absolute;
+    left: 2px;
+}
+#nde-table li.header-row > div.list-cell:first-child > span.sort-direction {
+    right: 2px;
+    left: auto;
+}
+
+/* Group column */
+
+li.header-row div.group-cell,
+li.value-row div.group-cell {
+    width: 300px;
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    padding-left: 4px;
+}
+li.value-row.nde-hover > div.group-cell {
     font-weight: bold;
     color: #2b8cbe;
 }
-li.value-row .group-cell .group-name {
-    display: inline-block;
-    letter-spacing: 1px;
-    text-align: left;
-    white-space: nowrap;
-    width: 0;
-    transition: width .8s ease;
+li.value-row.nde-hover > div.group-cell {
+    background: #eee;
 }
-li.value-row:hover .group-cell .group-name {
-    width: 100%;
+li.value-row.has-children > div.group-cell > span.group-name {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* n column */
+
+#nde-table li.has-children > div.group-cell span.group-name, #nde-table .listing-click {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* Overall row */
+
+#nde-table ul.overall-row ul > li {
+    background: #eee;
+    border-top: 1px solid #999;
+    border-bottom: 1px solid #999;
+
+}
+
+/* Cells */
+
+#nde-table div.list-cell {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 2px;
+    padding-bottom: 1px;
+    padding-right: 4px;
+}
+
+#nde-table div.value-cell * {
+    display: inline-block;
+    vertical-align: top;
+}
+
+#nde-table div.value-cell div.value {
+    width: 50px;
     text-align: right;
 }
 
-#nde-table ul.overall-row ul>li{
-    background: #eee;
-    border-top:1px solid #999;
-    border-bottom:1px solid #999;
-
+#nde-table div.value-cell div.sparkline rect.bar.highlight {
+    fill: #2b8cbe;
+    stroke: #2b8cbe;
 }
 
-#nde-table .group-cell{
-    width:300px;
-    white-space:nowrap;
-    overflow-x:hidden;
-    text-overflow: ellipsis;
-}
-
-#nde-table li.has-children>div.group-cell span.group-name, #nde-table .listing-click{
-    color:blue;
-    text-decoration: underline;
-    cursor:pointer;
-}
-
-#nde-table div.list-cell{
-    display:inline-block;
-    vertical-align:top;
-    margin-right:2px;
-    padding-bottom:1px;
-    padding-left:2px;
-}
-
-#nde-table div.value-cell *{
-    display:inline-block;
-    vertical-align:top;
-
-}
-
-#nde-table div.value-cell div.value{
-    width:50px;
-    text-align: center;
-}
-
-#nde-table div.value-cell div.sparkline rect.bar.highlight{
-    fill:#2b8cbe;
-    stroke:#2b8cbe;
-}
-
-#nde-table div.value-cell div.hover{
-   height:23px;
-   width:50px;
+#nde-table div.value-cell div.hover {
+   height: 23px;
+   width: 50px;
    text-align: center;
 }
 
-#nde-table div.value-cell div.hover div.hover-date{
-    width:100%;
-    height:9px;
-    font-size:9px;
+#nde-table div.value-cell div.hover div.hover-date {
+    width: 100%;
+    height: 9px;
+    font-size: 9px;
     color: #999;
 }
 
-#nde-table div.value-cell div.hover div.hover-value{
-    width:100%;
-    height:14px;
-    font-size:14px;
+#nde-table div.value-cell div.hover div.hover-value {
+    width: 100%;
+    height: 14px;
+    font-size: 14px;
     color: #2b8cbe;
 }
 
-#nde-table .hidden, #nde-table circle.hidden, #nde-table div.hidden, #nde-details .hidden, #nde-controls .hidden{
-    display:none;
+#nde-table .hidden, #nde-table circle.hidden, #nde-table div.hidden, #nde-details .hidden, #nde-controls .hidden {
+    display: none;
 }
 
-#nde-details div.closeDetails span{
-    border:1px solid black;
-    background:white;
-    color:black;
-    border-radius:0.2em;
-    padding:0.2em 0.5em;
-    cursor:pointer;
+#nde-details div.closeDetails span {
+    border: 1px solid black;
+    background: white;
+    color: black;
+    border-radius: 0.2em;
+    padding: 0.2em 0.5em;
+    cursor: pointer;
 }
 
 #nde-details div.closeDetails {
-    margin-bottom:1em;
+    margin-bottom: 1em;
 }

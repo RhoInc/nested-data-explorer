@@ -58,10 +58,26 @@ export default function makeNestLevel(key, data, iterate) {
             return obj;
         })
         .entries(data)
-        .sort(function(a, b) {
-            let alpha = a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
-            let numeric = b.values.n - a.values.n;
-            return config.sort_alpha ? alpha : numeric;
+        .sort((a, b) => {
+            const alpha =
+                chart.config.sort_direction === 'ascending'
+                    ? a.key < b.key
+                        ? -1
+                        : a.key > b.key
+                        ? 1
+                        : 0
+                    : a.key > b.key
+                    ? -1
+                    : a.key < b.key
+                    ? 1
+                    : 0;
+            const numeric =
+                chart.config.sort_column !== 'key'
+                    ? chart.config.sort_direction === 'ascending'
+                        ? a.values[chart.config.sort_column] - b.values[chart.config.sort_column]
+                        : b.values[chart.config.sort_column] - a.values[chart.config.sort_column]
+                    : null;
+            return config.sort_column === 'key' || !numeric ? alpha : numeric;
         });
 
     return myNest;

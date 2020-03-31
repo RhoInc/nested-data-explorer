@@ -46,9 +46,7 @@ export default function lineEvents(point_g) {
             hoverCells
                 .append('div')
                 .attr('class', 'hover-date')
-                .text(function(d) {
-                    return d.date ? d.date : 'No Date';
-                });
+                .text(d => (d.date ? d.date : 'No Date'));
             hoverCells
                 .append('div')
                 .attr('class', 'hover-value')

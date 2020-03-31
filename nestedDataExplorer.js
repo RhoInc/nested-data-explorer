@@ -156,7 +156,9 @@
             metrics: [],
             show_count: true,
             show_percent: true,
-            sort_alpha: true,
+            sort_alpha: false,
+            sort_direction: 'descending',
+            sort_column: 'n',
             show_sparklines: false,
             date_col: null,
             date_format: null, //if specified, will attempt to parse date_col with d3.time.format(date_format)
@@ -192,6 +194,11 @@
     }
 
     function syncSettings(settings) {
+        if (settings.sort_alpha === true) {
+            settings.sort_direction = 'ascending';
+            settings.sort_column = 'key';
+        }
+
         // webcharts settings
         settings.y.column = settings.groups[0];
         settings.marks[0].per = [settings.groups[0]];
@@ -214,6 +221,7 @@
             if (d.showSparkline == undefined) d.showSparkline = true;
             if (d.fillEmptyCells == undefined) d.fillEmptyCells = true;
             if (d.type == undefined) d.type = 'line';
+            if (d.sort_direction === undefined) d.sort_direction = 'ascending';
         });
 
         //merge in default metrics
@@ -3793,10 +3801,28 @@
         updateGroupControl.call(this);
     }
 
+    function updateSortCheckbox() {
+        var chart = this;
+
+        this.controls.sortCheckbox = this.controls.wrap
+            .selectAll('.control-group')
+            .filter(function(d) {
+                return d.label === 'Sort Alphabetically?';
+            })
+            .selectAll('input')
+            .on('change', function() {
+                chart.config.sort_alpha = this.checked;
+                chart.config.sort_direction = this.checked ? 'ascending' : 'descending';
+                chart.config.sort_column = this.checked ? 'key' : 'n';
+                chart.draw();
+            });
+    }
+
     function onLayout() {
         var chart = this;
         this.list = chart.wrap.append('div').attr('class', 'nested-data-explorer');
         makeGroupControl.call(this);
+        updateSortCheckbox.call(this);
     }
 
     function onPreprocess() {}
@@ -3884,9 +3910,27 @@
             })
             .entries(data)
             .sort(function(a, b) {
-                var alpha = a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
-                var numeric = b.values.n - a.values.n;
-                return config.sort_alpha ? alpha : numeric;
+                var alpha =
+                    chart.config.sort_direction === 'ascending'
+                        ? a.key < b.key
+                            ? -1
+                            : a.key > b.key
+                            ? 1
+                            : 0
+                        : a.key > b.key
+                        ? -1
+                        : a.key < b.key
+                        ? 1
+                        : 0;
+                var numeric =
+                    chart.config.sort_column !== 'key'
+                        ? chart.config.sort_direction === 'ascending'
+                            ? a.values[chart.config.sort_column] -
+                              b.values[chart.config.sort_column]
+                            : b.values[chart.config.sort_column] -
+                              a.values[chart.config.sort_column]
+                        : null;
+                return config.sort_column === 'key' || !numeric ? alpha : numeric;
             });
 
         return myNest;
@@ -4145,14 +4189,28 @@
     }
 
     function drawHeader(ul) {
+        var _this = this;
+
         var chart = this;
         var config = this.config;
+
         var header = ul.append('li').attr('class', 'header-row');
-        header
+
+        var groupCellContainer = header
             .append('div')
+            .datum({ label: 'key' })
             .attr('class', 'list-cell group-cell')
             .text('Group');
-        header
+        groupCellContainer.on('click', function(d) {
+            chart.config.sort_alpha = true;
+            chart.config.sort_column = 'key';
+            chart.config.sort_direction =
+                chart.config.sort_direction === 'ascending' ? 'descending' : 'ascending';
+            chart.controls.sortCheckbox.property('checked', true);
+            chart.draw();
+        });
+
+        var valueCellContainers = header
             .selectAll('div.value-cell')
             .data(function(d) {
                 return chart.config.metrics.filter(function(f) {
@@ -4163,18 +4221,35 @@
             .append('div')
             .attr('class', 'list-cell value-cell')
             .style('width', function(d) {
-                console.log(d);
                 return (
                     (config.show_sparklines && d.showSparkline ? config.spark.width + 50 : 50) +
                     'px'
                 );
-            })
+            });
+        var valueCells = valueCellContainers
             .append('div')
             .classed('value', true)
             .style('width', '100%')
             .text(function(d) {
                 return d.label;
             });
+        valueCells.on('click', function(d) {
+            chart.config.sort_alpha = false;
+            chart.config.sort_column = d.label;
+            d.sort_direction = d.sort_direction === 'ascending' ? 'descending' : 'ascending';
+            chart.config.sort_direction = d.sort_direction;
+            chart.controls.sortCheckbox.property('checked', false);
+            chart.draw();
+        });
+
+        header
+            .selectAll('.list-cell')
+            .filter(function(d) {
+                return d.label === _this.config.sort_column;
+            })
+            .append('span')
+            .classed('sort-direction', true)
+            .html(chart.config.sort_direction === 'ascending' ? '&uarr;' : '&darr;');
     }
 
     function drawChildren(li, iterate) {
@@ -4205,7 +4280,7 @@
         var chart = this;
         var config = this.config;
         if (iterate == undefined) iterate = false;
-        var ul = wrap.append('ul');
+        var ul = wrap.append('ul').classed('one-list-to-rule-them-all', true);
         if (header) drawHeader.call(this, ul);
 
         var lis = ul
@@ -4223,15 +4298,25 @@
             .attr('class', 'list-cell group-cell')
             .property('title', function(d) {
                 return d.key;
-            })
-            .html(function(d) {
-                return (
-                    '&nbsp;&nbsp;&nbsp;'.repeat(d.values.level > 0 ? d.values.level : 0) +
-                    "<span class='group-name'>" +
-                    d.key +
-                    '</span>'
-                );
             });
+        group_cells
+            .append('span')
+            .attr('class', function(d) {
+                return 'group-name group-name--' + d.values.level;
+            })
+            .style('padding-left', function(d) {
+                return d.values.level * 24 + 'px';
+            })
+            .text(function(d) {
+                return d.key;
+            });
+        //.html(
+        //    d =>
+        //        '&nbsp;&nbsp;&nbsp;'.repeat(d.values.level > 0 ? d.values.level : 0) +
+        //        "<span class='group-name'>" +
+        //        d.key +
+        //        '</span>'
+        //);
 
         /* TODO fake little css barchart - could revive later with option? 
             .style(
@@ -4301,25 +4386,31 @@
                 drawListing.call(chart, d.raw, d.keyDesc);
             });
         lis.each(function(d) {
+            var li = d3.select(this);
+
+            li.on('mouseover', function() {
+                d3.select(this).classed('nde-hover', true);
+            }).on('mouseout', function() {
+                d3.select(this).classed('nde-hover', false);
+            });
+
             if (d.values.hasChildren) {
                 //iterate (draw the children ul) if requested
-                if (iterate) drawChildren.call(chart, d3.select(this), true);
+                if (iterate) drawChildren.call(chart, li, true);
 
                 //click group-cell to show/hide children
-                d3.select(this)
-                    .select('div.group-cell')
-                    .on('click', function(d) {
-                        var li = d3.select(this.parentNode);
+                li.select('div.group-cell').on('click', function(d) {
+                    var parent_li = d3.select(this.parentNode);
 
-                        //if ul exists toggle it's visibility
-                        if (!li.select('ul').empty()) {
-                            var toggle = !li.select('ul').classed('hidden');
-                            li.select('ul').classed('hidden', toggle);
-                        }
+                    //if ul exists toggle it's visibility
+                    if (!parent_li.select('ul').empty()) {
+                        var toggle = !parent_li.select('ul').classed('hidden');
+                        parent_li.select('ul').classed('hidden', toggle);
+                    }
 
-                        //try to draw any children (iteratively, if shift or ctrl is down )
-                        drawChildren.call(chart, li, d3.event.shiftKey || d3.event.ctrlKey);
-                    });
+                    //try to draw any children (iteratively, if shift or ctrl is down )
+                    drawChildren.call(chart, parent_li, d3.event.shiftKey || d3.event.ctrlKey);
+                });
             }
         });
     }
