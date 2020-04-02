@@ -3885,8 +3885,9 @@
                 }
 
                 // get data for the sparkline (but don't do this if you're already calculating sparkline data)
-                if ((key != 'date_interval') & config.show_sparklines)
+                if ((key != 'date_interval') & config.show_sparklines) {
                     obj.sparkline = makeNestLevel.call(chart, 'date_interval', d);
+                }
 
                 // get metrics data
                 obj.metrics = [];
@@ -3910,27 +3911,34 @@
             })
             .entries(data)
             .sort(function(a, b) {
-                var alpha =
-                    chart.config.sort_direction === 'ascending'
-                        ? a.key < b.key
-                            ? -1
+                if (key !== 'date_interval') {
+                    var alpha =
+                        chart.config.sort_direction === 'ascending'
+                            ? a.key < b.key
+                                ? -1
+                                : a.key > b.key
+                                ? 1
+                                : 0
                             : a.key > b.key
+                            ? -1
+                            : a.key < b.key
                             ? 1
-                            : 0
-                        : a.key > b.key
-                        ? -1
-                        : a.key < b.key
-                        ? 1
-                        : 0;
-                var numeric =
-                    chart.config.sort_column !== 'key'
-                        ? chart.config.sort_direction === 'ascending'
-                            ? a.values[chart.config.sort_column] -
-                              b.values[chart.config.sort_column]
-                            : b.values[chart.config.sort_column] -
-                              a.values[chart.config.sort_column]
-                        : null;
-                return config.sort_column === 'key' || !numeric ? alpha : numeric;
+                            : 0;
+                    var numeric =
+                        chart.config.sort_column !== 'key'
+                            ? chart.config.sort_direction === 'ascending'
+                                ? a.values[chart.config.sort_column] -
+                                  b.values[chart.config.sort_column]
+                                : b.values[chart.config.sort_column] -
+                                  a.values[chart.config.sort_column]
+                            : null;
+                    return config.sort_column === 'key' || !numeric ? alpha : numeric;
+                } else {
+                    return (
+                        d3.time.format(config.spark.interval).parse(a.key) -
+                        d3.time.format(config.spark.interval).parse(b.key)
+                    );
+                }
             });
 
         return myNest;
@@ -3947,7 +3955,11 @@
             .values();
         //  .filter(f => f != 'null');
 
-        spark.dates = spark.dates.sort(d3.ascending);
+        spark.dates = spark.dates.sort(function(a, b) {
+            return (
+                d3.time.format(spark.interval).parse(a) - d3.time.format(spark.interval).parse(b)
+            );
+        });
         spark.x = d3.scale
             .ordinal()
             .domain(spark.dates)
