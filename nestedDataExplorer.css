@@ -131,20 +131,26 @@ li.value-row.has-children > div.group-cell > span.group-name {
    height: 23px;
    width: 50px;
    text-align: center;
+   position: relative;
+}
+
+#nde-table div.value-cell div.hover > * {
+    position: absolute;
+    right: 0;
 }
 
 #nde-table div.value-cell div.hover div.hover-date {
-    width: 100%;
     height: 9px;
     font-size: 9px;
     color: #999;
+    top: 0;
 }
 
 #nde-table div.value-cell div.hover div.hover-value {
-    width: 100%;
     height: 14px;
     font-size: 14px;
     color: #2b8cbe;
+    bottom: 0;
 }
 
 #nde-table .hidden, #nde-table circle.hidden, #nde-table div.hidden, #nde-details .hidden, #nde-controls .hidden {
