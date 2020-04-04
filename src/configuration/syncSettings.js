@@ -1,4 +1,9 @@
 export default function syncSettings(settings) {
+    if (settings.sort_alpha === true) {
+        settings.sort_direction = 'ascending';
+        settings.sort_column = 'key';
+    }
+
     // webcharts settings
     settings.y.column = settings.groups[0];
     settings.marks[0].per = [settings.groups[0]];
@@ -19,6 +24,7 @@ export default function syncSettings(settings) {
         if (d.showSparkline == undefined) d.showSparkline = true;
         if (d.fillEmptyCells == undefined) d.fillEmptyCells = true;
         if (d.type == undefined) d.type = 'line';
+        if (d.sort_direction === undefined) d.sort_direction = 'ascending';
     });
 
     //merge in default metrics

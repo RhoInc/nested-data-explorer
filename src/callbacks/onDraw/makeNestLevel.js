@@ -36,8 +36,9 @@ export default function makeNestLevel(key, data, iterate) {
             }
 
             // get data for the sparkline (but don't do this if you're already calculating sparkline data)
-            if ((key != 'date_interval') & config.show_sparklines)
+            if ((key != 'date_interval') & config.show_sparklines) {
                 obj.sparkline = makeNestLevel.call(chart, 'date_interval', d);
+            }
 
             // get metrics data
             obj.metrics = [];
@@ -58,10 +59,35 @@ export default function makeNestLevel(key, data, iterate) {
             return obj;
         })
         .entries(data)
-        .sort(function(a, b) {
-            let alpha = a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
-            let numeric = b.values.n - a.values.n;
-            return config.sort_alpha ? alpha : numeric;
+        .sort((a, b) => {
+            if (key !== 'date_interval') {
+                const alpha =
+                    chart.config.sort_direction === 'ascending'
+                        ? a.key < b.key
+                            ? -1
+                            : a.key > b.key
+                            ? 1
+                            : 0
+                        : a.key > b.key
+                        ? -1
+                        : a.key < b.key
+                        ? 1
+                        : 0;
+                const numeric =
+                    chart.config.sort_column !== 'key'
+                        ? chart.config.sort_direction === 'ascending'
+                            ? a.values[chart.config.sort_column] -
+                              b.values[chart.config.sort_column]
+                            : b.values[chart.config.sort_column] -
+                              a.values[chart.config.sort_column]
+                        : null;
+                return config.sort_column === 'key' || !numeric ? alpha : numeric;
+            } else {
+                return (
+                    d3.time.format(config.spark.interval).parse(a.key) -
+                    d3.time.format(config.spark.interval).parse(b.key)
+                );
+            }
         });
 
     return myNest;
