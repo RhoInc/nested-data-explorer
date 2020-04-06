@@ -2,18 +2,18 @@ export default function webchartsSettings() {
     return {
         x: {
             column: null,
-            type: 'ordinal'
+            type: 'ordinal',
         },
         y: {
             column: '',
-            type: 'linear'
+            type: 'linear',
         },
         marks: [
             {
                 type: 'bar',
-                per: null
-            }
+                per: null,
+            },
         ],
-        max_width: 900
+        max_width: 900,
     };
 }

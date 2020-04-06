@@ -11,7 +11,7 @@ export default function drawChildren(li, iterate) {
         li_data.values.children = makeNestLevel.call(
             chart,
             li_data.values.childrenKey,
-            li_data.values.raw
+            li_data.values.raw,
         );
         li_data.values.childrenStatus = 'ready';
         drawListLevel.call(chart, li, li_data.values.children, false, iterate);

@@ -50,7 +50,7 @@ export default function makeNestLevel(key, data, iterate) {
                     metricObj.sparkline = obj.sparkline.map(m => ({
                         date: m.key,
                         value: m.values[metricObj.label],
-                        formatted: m.values[metricObj.label + '_formatted']
+                        formatted: m.values[metricObj.label + '_formatted'],
                     }));
                 }
                 obj.metrics.push(metricObj);

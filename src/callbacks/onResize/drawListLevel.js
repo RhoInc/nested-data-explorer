@@ -54,7 +54,7 @@ export default function drawListLevel(wrap, nest, header, iterate) {
         .append('div')
         .attr('class', 'list-cell value-cell')
         .style('width', d =>
-            config.show_sparklines & d.showSparkline ? config.spark.width + 50 : 50
+            config.show_sparklines & d.showSparkline ? config.spark.width + 50 : 50,
         )
         .style('height', config.spark.height > 25 ? config.spark.height : 25);
 

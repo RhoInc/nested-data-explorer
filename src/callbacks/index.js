@@ -13,5 +13,5 @@ export default {
     onDatatransform,
     onDraw,
     onResize,
-    onDestroy
+    onDestroy,
 };

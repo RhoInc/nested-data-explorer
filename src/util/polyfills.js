@@ -28,7 +28,7 @@ if (typeof Object.assign != 'function') {
             return to;
         },
         writable: true,
-        configurable: true
+        configurable: true,
     });
 }
 
@@ -72,7 +72,7 @@ if (!Array.prototype.find) {
 
             // 7. Return undefined.
             return undefined;
-        }
+        },
     });
 }
 
@@ -116,7 +116,7 @@ if (!Array.prototype.findIndex) {
 
             // 7. Return -1.
             return -1;
-        }
+        },
     });
 }
 

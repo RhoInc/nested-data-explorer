@@ -12,6 +12,9 @@
     ],
     "dependencies": {
         "d3": "^3",
+        "daterangepicker": "^3.0.5",
+        "jquery": "^3.4.1",
+        "moment": "^2.24.0",
         "sortablejs": "^1.10.2",
         "webcharts": "^1.11.6"
     },
@@ -24,11 +27,12 @@
         "build-data-guidelines-wiki": "node ./scripts/build-data-guidelines-wiki.js",
         "bundle": "rollup -c",
         "check-settings-schema": "node ./scripts/check-settings-schema.js",
-        "format": "npm run format-src && npm run format-bundle",
-        "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./src/**/*.js\"",
+        "format": "npm run format-src && npm run format-bundle && npm run format-test-page",
+        "format-bundle": "prettier --print-width 100 --single-quote --tab-width 4 --trailing-comma all --write ./nestedDataExplorer.js",
+        "format-src": "prettier --print-width 100 --single-quote --tab-width 4 --trailing-comma all --write \"./src/**/*.js\"",
+        "format-test-page": "prettier --print-width 100 --single-quote --tab-width 4 --trailing-comma all --write \"./test-page/**/*.{css,html,js}\"",
         "test-page": "start chrome ./test-page/index.html && start firefox ./test-page/index.html && start iexplore file://%CD%/test-page/index.html",
-        "watch": "rollup -c -w",
-        "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write ./nestedDataExplorer.js"
+        "watch": "rollup -c -w"
     },
     "devDependencies": {
         "babel-plugin-external-helpers": "^6.22.0",

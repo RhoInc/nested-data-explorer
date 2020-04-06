@@ -4,7 +4,7 @@ export default function controlInputs() {
             type: 'checkbox',
             label: 'Sort Alphabetically?',
             option: 'sort_alpha',
-            require: true
-        }
+            require: true,
+        },
     ];
 }

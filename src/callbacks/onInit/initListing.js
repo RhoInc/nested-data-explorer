@@ -2,7 +2,7 @@ export default function initListing() {
     let chart = this;
     let configCols = ['overall', 'date_parsed', 'date_interval'];
     this.listing.config.cols = Object.keys(this.initial_data[0]).filter(
-        f => configCols.indexOf(f) == -1
+        f => configCols.indexOf(f) == -1,
     );
     this.listing.init([]);
     this.listing.wrap.insert('h3', '*');

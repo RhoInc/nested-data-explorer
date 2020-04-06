@@ -6,18 +6,18 @@ const settings = {
         { value_col: 'state', label: 'State' },
         { value_col: 'party', label: 'Party' },
     ],
-    groups: ['type','party'],
-    date_col: "birthday",
-    date_format: "%m/%d/%Y",
+    groups: ['type', 'party'],
+    date_col: 'birthday',
+    date_format: '%m/%d/%Y',
     show_sparklines: true,
     spark: {
         interval: '%Y',
         width: 100,
         height: 25,
-        offset: 4
+        offset: 4,
     },
 };
 const chart = nestedDataExplorer('#container', settings);
-d3.csv('legislators-current.csv', function (data) {
+d3.csv('legislators-current.csv', function(data) {
     chart.init(data);
 });

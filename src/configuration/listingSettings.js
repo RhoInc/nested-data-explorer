@@ -4,6 +4,6 @@ export default function listingSettings() {
         searchable: true,
         sortable: true,
         pagination: true,
-        exportable: true
+        exportable: true,
     };
 }

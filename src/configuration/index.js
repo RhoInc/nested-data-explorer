@@ -12,5 +12,5 @@ export default {
     syncSettings,
     controlInputs,
     syncControlInputs,
-    listingSettings
+    listingSettings,
 };

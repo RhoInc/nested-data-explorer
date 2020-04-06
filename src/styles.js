@@ -6,7 +6,7 @@ export default function styles() {
         '.wc-chart path.selected{',
         'stroke-width:5px;',
         'stroke:orange;',
-        '}'
+        '}',
     ];
     const style = document.createElement('style');
     style.type = 'text/css';

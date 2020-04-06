@@ -35,7 +35,7 @@
                 return to;
             },
             writable: true,
-            configurable: true
+            configurable: true,
         });
     }
 
@@ -79,7 +79,7 @@
 
                 // 7. Return undefined.
                 return undefined;
-            }
+            },
         });
     }
 
@@ -123,7 +123,7 @@
 
                 // 7. Return -1.
                 return -1;
-            }
+            },
         });
     }
 
@@ -161,15 +161,16 @@
             sort_column: 'n',
             show_sparklines: false,
             date_col: null,
-            date_format: null, //if specified, will attempt to parse date_col with d3.time.format(date_format)
+            date_format: null, // if specified, will attempt to parse date_col with d3.time.format(date_format)
             show_overall: true,
             spark: {
                 interval: '%Y-%m',
                 width: 100,
                 height: 25,
-                offset: 3
+                offset: 3,
             },
-            filters: [] //updated in sync settings
+            filters: [], // updated in sync settings
+            date_range: null,
         };
     }
 
@@ -177,23 +178,31 @@
         return {
             x: {
                 column: null,
-                type: 'ordinal'
+                type: 'ordinal',
             },
             y: {
                 column: '',
-                type: 'linear'
+                type: 'linear',
             },
             marks: [
                 {
                     type: 'bar',
-                    per: null
-                }
+                    per: null,
+                },
             ],
-            max_width: 900
+            max_width: 900,
         };
     }
 
     function syncSettings(settings) {
+        // date settings
+        settings.use_dates =
+            settings.date_col &&
+            window.jQuery !== undefined &&
+            window.moment !== undefined &&
+            window.daterangepicker;
+
+        // sort settings
         if (settings.sort_alpha === true) {
             settings.sort_direction = 'ascending';
             settings.sort_column = 'key';
@@ -239,7 +248,7 @@
                 showSparkline: true,
                 visible: settings.hide_count ? false : true,
                 fillEmptyCells: true,
-                type: 'bar'
+                type: 'bar',
             });
         }
         if (metricNames.indexOf('%') == -1) {
@@ -254,7 +263,7 @@
                 format: '0.1%',
                 showSparkline: false,
                 visible: settings.hide_percent ? false : true,
-                fillEmptyCells: true
+                fillEmptyCells: true,
             });
         }
 
@@ -267,23 +276,32 @@
                 type: 'checkbox',
                 label: 'Sort Alphabetically?',
                 option: 'sort_alpha',
-                require: true
-            }
+                require: true,
+            },
         ];
     }
 
     function syncControlInputs(controlInputs, settings) {
+        if (settings.use_dates)
+            controlInputs.unshift({
+                type: 'text',
+                label: 'Date Range',
+                option: 'date_range',
+                require: true,
+            });
+
         //Add filters to default controls.
         if (Array.isArray(settings.filters) && settings.filters.length > 0) {
             settings.filters.forEach(function(filter) {
                 var filterObj = {
                     type: 'subsetter',
                     value_col: filter.value_col || filter,
-                    label: filter.label || filter.value_col || filter
+                    label: filter.label || filter.value_col || filter,
                 };
                 controlInputs.push(filterObj);
             });
         }
+
         return controlInputs;
     }
 
@@ -293,7 +311,7 @@
             searchable: true,
             sortable: true,
             pagination: true,
-            exportable: true
+            exportable: true,
         };
     }
 
@@ -304,7 +322,7 @@
         syncSettings: syncSettings,
         controlInputs: controlInputs,
         syncControlInputs: syncControlInputs,
-        listingSettings: listingSettings
+        listingSettings: listingSettings,
     };
 
     function makeOverall() {
@@ -352,6 +370,7 @@
         makeOverall.call(this);
         makeDateInterval.call(this);
         initListing.call(this);
+        this.initial_data = this.raw_data;
     }
 
     /**!
@@ -385,7 +404,7 @@
                 value: value,
                 enumerable: true,
                 configurable: true,
-                writable: true
+                writable: true,
             });
         } else {
             obj[key] = value;
@@ -423,7 +442,7 @@
                 ownKeys = ownKeys.concat(
                     Object.getOwnPropertySymbols(source).filter(function(sym) {
                         return Object.getOwnPropertyDescriptor(source, sym).enumerable;
-                    })
+                    }),
                 );
             }
 
@@ -491,7 +510,7 @@
 
     var captureMode = {
         capture: false,
-        passive: false
+        passive: false,
     };
 
     function on(el, event, fn) {
@@ -506,7 +525,7 @@
         /**HTMLElement*/
         el,
         /**String*/
-        selector
+        selector,
     ) {
         if (!selector) return;
         selector[0] === '>' && (selector = selector.substring(1));
@@ -539,7 +558,7 @@
         selector,
         /**HTMLElement*/
         ctx,
-        includeCTX
+        includeCTX,
     ) {
         if (el) {
             ctx = ctx || document;
@@ -665,7 +684,7 @@
         relativeToContainingBlock,
         relativeToNonStaticParent,
         undoScale,
-        container
+        container,
     ) {
         if (!el.getBoundingClientRect && el !== window) return;
         var elRect, top, left, bottom, right, height, width;
@@ -735,7 +754,7 @@
             bottom: bottom,
             right: right,
             width: width,
-            height: height
+            height: height,
         };
     }
     /**
@@ -1001,12 +1020,12 @@
                     if (css(child, 'display') === 'none' || child === Sortable.ghost) return;
                     animationStates.push({
                         target: child,
-                        rect: getRect(child)
+                        rect: getRect(child),
                     });
 
                     var fromRect = _objectSpread(
                         {},
-                        animationStates[animationStates.length - 1].rect
+                        animationStates[animationStates.length - 1].rect,
                     ); // If animating: compensate for current animation
 
                     if (child.thisAnimationDuration) {
@@ -1027,9 +1046,9 @@
             removeAnimationState: function removeAnimationState(target) {
                 animationStates.splice(
                     indexOfObject(animationStates, {
-                        target: target
+                        target: target,
                     }),
-                    1
+                    1,
                 );
             },
             animateAll: function animateAll(callback) {
@@ -1075,7 +1094,7 @@
                                 animatingRect,
                                 prevFromRect,
                                 prevToRect,
-                                _this.options
+                                _this.options,
                             );
                         }
                     } // if fromRect != toRect: animate
@@ -1131,7 +1150,7 @@
                     css(
                         target,
                         'transform',
-                        'translate3d(' + translateX + 'px,' + translateY + 'px,0)'
+                        'translate3d(' + translateX + 'px,' + translateY + 'px,0)',
                     );
                     repaint(target); // repaint
 
@@ -1141,7 +1160,7 @@
                         'transform ' +
                             duration +
                             'ms' +
-                            (this.options.easing ? ' ' + this.options.easing : '')
+                            (this.options.easing ? ' ' + this.options.easing : ''),
                     );
                     css(target, 'transform', 'translate3d(0,0,0)');
                     typeof target.animated === 'number' && clearTimeout(target.animated);
@@ -1153,7 +1172,7 @@
                         target.animatingY = false;
                     }, duration);
                 }
-            }
+            },
         };
     }
 
@@ -1165,11 +1184,11 @@
         return (
             (Math.sqrt(
                 Math.pow(fromRect.top - animatingRect.top, 2) +
-                    Math.pow(fromRect.left - animatingRect.left, 2)
+                    Math.pow(fromRect.left - animatingRect.left, 2),
             ) /
                 Math.sqrt(
                     Math.pow(fromRect.top - toRect.top, 2) +
-                        Math.pow(fromRect.left - toRect.left, 2)
+                        Math.pow(fromRect.left - toRect.left, 2),
                 )) *
             options.animation
         );
@@ -1177,7 +1196,7 @@
 
     var plugins = [];
     var defaults = {
-        initializeByDefault: true
+        initializeByDefault: true,
     };
     var PluginManager = {
         mount: function mount(plugin) {
@@ -1207,10 +1226,10 @@
                     sortable[plugin.pluginName][eventNameGlobal](
                         _objectSpread(
                             {
-                                sortable: sortable
+                                sortable: sortable,
                             },
-                            evt
-                        )
+                            evt,
+                        ),
                     );
                 } // Only fire plugin event if plugin is enabled in this sortable,
                 // and plugin has event defined
@@ -1219,10 +1238,10 @@
                     sortable[plugin.pluginName][eventName](
                         _objectSpread(
                             {
-                                sortable: sortable
+                                sortable: sortable,
                             },
-                            evt
-                        )
+                            evt,
+                        ),
                     );
                 }
             });
@@ -1255,7 +1274,7 @@
 
                 _extends(
                     eventProperties,
-                    plugin.eventProperties.call(sortable[plugin.pluginName], name)
+                    plugin.eventProperties.call(sortable[plugin.pluginName], name),
                 );
             });
             return eventProperties;
@@ -1269,12 +1288,12 @@
                 if (plugin.optionListeners && typeof plugin.optionListeners[name] === 'function') {
                     modifiedValue = plugin.optionListeners[name].call(
                         sortable[plugin.pluginName],
-                        value
+                        value,
                     );
                 }
             });
             return modifiedValue;
-        }
+        },
     };
 
     function dispatchEvent(_ref) {
@@ -1301,7 +1320,7 @@
         if (window.CustomEvent && !IE11OrLess && !Edge) {
             evt = new CustomEvent(name, {
                 bubbles: true,
-                cancelable: true
+                cancelable: true,
             });
         } else {
             evt = document.createEvent('Event');
@@ -1322,7 +1341,7 @@
         var allEventProperties = _objectSpread(
             {},
             extraEventProperties,
-            PluginManager.getEventProperties(name, sortable)
+            PluginManager.getEventProperties(name, sortable),
         );
 
         for (var option in allEventProperties) {
@@ -1376,12 +1395,12 @@
                         _dispatchEvent({
                             sortable: sortable,
                             name: name,
-                            originalEvent: originalEvent
+                            originalEvent: originalEvent,
                         });
-                    }
+                    },
                 },
-                data
-            )
+                data,
+            ),
         );
     };
 
@@ -1396,10 +1415,10 @@
                     oldIndex: oldIndex,
                     oldDraggableIndex: oldDraggableIndex,
                     newIndex: newIndex,
-                    newDraggableIndex: newDraggableIndex
+                    newDraggableIndex: newDraggableIndex,
                 },
-                info
-            )
+                info,
+            ),
         );
     }
 
@@ -1581,7 +1600,7 @@
 
             if (!originalGroup || _typeof(originalGroup) != 'object') {
                 originalGroup = {
-                    name: originalGroup
+                    name: originalGroup,
                 };
             }
 
@@ -1614,7 +1633,7 @@
                     return false;
                 }
             },
-            true
+            true,
         );
     }
 
@@ -1705,10 +1724,10 @@
             fallbackTolerance: 0,
             fallbackOffset: {
                 x: 0,
-                y: 0
+                y: 0,
             },
             supportPointer: Sortable.supportPointer !== false && 'PointerEvent' in window,
-            emptyInsertThreshold: 5
+            emptyInsertThreshold: 5,
         };
         PluginManager.initializePlugins(this, el, defaults); // Set default options
 
@@ -1766,7 +1785,7 @@
             },
             _onTapStart: function _onTapStart(
                 /** Event|TouchEvent */
-                evt
+                evt,
             ) {
                 if (!evt.cancelable) return;
 
@@ -1822,11 +1841,11 @@
                             name: 'filter',
                             targetEl: target,
                             toEl: el,
-                            fromEl: el
+                            fromEl: el,
                         });
 
                         pluginEvent('filter', _this, {
-                            evt: evt
+                            evt: evt,
                         });
                         preventOnFilter && evt.cancelable && evt.preventDefault();
                         return; // cancel dnd
@@ -1842,11 +1861,11 @@
                                 name: 'filter',
                                 targetEl: target,
                                 fromEl: el,
-                                toEl: el
+                                toEl: el,
                             });
 
                             pluginEvent('filter', _this, {
-                                evt: evt
+                                evt: evt,
                             });
                             return true;
                         }
@@ -1870,7 +1889,7 @@
                 /** Touch */
                 touch,
                 /** HTMLElement */
-                target
+                target,
             ) {
                 var _this = this,
                     el = _this.el,
@@ -1890,7 +1909,7 @@
                     tapEvt = {
                         target: dragEl,
                         clientX: (touch || evt).clientX,
-                        clientY: (touch || evt).clientY
+                        clientY: (touch || evt).clientY,
                     };
                     tapDistanceLeft = tapEvt.clientX - dragRect.left;
                     tapDistanceTop = tapEvt.clientY - dragRect.top;
@@ -1900,7 +1919,7 @@
 
                     dragStartFn = function dragStartFn() {
                         pluginEvent('delayEnded', _this, {
-                            evt: evt
+                            evt: evt,
                         });
 
                         if (Sortable.eventCanceled) {
@@ -1921,7 +1940,7 @@
                         _dispatchEvent({
                             sortable: _this,
                             name: 'choose',
-                            originalEvent: evt
+                            originalEvent: evt,
                         }); // Chosen item
 
                         toggleClass(dragEl, options.chosenClass, true);
@@ -1943,7 +1962,7 @@
                     }
 
                     pluginEvent('delayStart', this, {
-                        evt: evt
+                        evt: evt,
                     }); // Delay is impossible for native DnD in Edge or IE
 
                     if (
@@ -1974,18 +1993,18 @@
             },
             _delayedDragTouchMoveHandler: function _delayedDragTouchMoveHandler(
                 /** TouchEvent|PointerEvent **/
-                e
+                e,
             ) {
                 var touch = e.touches ? e.touches[0] : e;
 
                 if (
                     Math.max(
                         Math.abs(touch.clientX - this._lastX),
-                        Math.abs(touch.clientY - this._lastY)
+                        Math.abs(touch.clientY - this._lastY),
                     ) >=
                     Math.floor(
                         this.options.touchStartThreshold /
-                            ((this.nativeDraggable && window.devicePixelRatio) || 1)
+                            ((this.nativeDraggable && window.devicePixelRatio) || 1),
                     )
                 ) {
                     this._disableDelayedDrag();
@@ -2010,7 +2029,7 @@
                 /** Event */
                 evt,
                 /** Touch */
-                touch
+                touch,
             ) {
                 touch = touch || (evt.pointerType == 'touch' && evt);
 
@@ -2043,7 +2062,7 @@
 
                 if (rootEl && dragEl) {
                     pluginEvent('dragStarted', this, {
-                        evt: evt
+                        evt: evt,
                     });
 
                     if (this.nativeDraggable) {
@@ -2060,7 +2079,7 @@
                     _dispatchEvent({
                         sortable: this,
                         name: 'start',
-                        originalEvent: evt
+                        originalEvent: evt,
                     });
                 } else {
                     this._nulling();
@@ -2079,7 +2098,7 @@
                     while (target && target.shadowRoot) {
                         target = target.shadowRoot.elementFromPoint(
                             touchEvt.clientX,
-                            touchEvt.clientY
+                            touchEvt.clientY,
                         );
                         if (target === parent) break;
                         parent = target;
@@ -2095,7 +2114,7 @@
                                     clientX: touchEvt.clientX,
                                     clientY: touchEvt.clientY,
                                     target: target,
-                                    rootEl: parent
+                                    rootEl: parent,
                                 });
 
                                 if (inserted && !this.options.dragoverBubble) {
@@ -2115,7 +2134,7 @@
             },
             _onTouchMove: function _onTouchMove(
                 /**TouchEvent*/
-                evt
+                evt,
             ) {
                 if (tapEvt) {
                     var options = this.options,
@@ -2147,7 +2166,7 @@
                             fallbackTolerance &&
                             Math.max(
                                 Math.abs(touch.clientX - this._lastX),
-                                Math.abs(touch.clientY - this._lastY)
+                                Math.abs(touch.clientY - this._lastY),
                             ) < fallbackTolerance
                         ) {
                             return;
@@ -2167,7 +2186,7 @@
                                 c: 0,
                                 d: 1,
                                 e: dx,
-                                f: dy
+                                f: dy,
                             };
                         }
 
@@ -2223,7 +2242,7 @@
                         }
 
                         ghostRelativeParentInitialScroll = getRelativeScrollOffset(
-                            ghostRelativeParent
+                            ghostRelativeParent,
                         );
                     }
 
@@ -2252,7 +2271,7 @@
                         (tapDistanceLeft / parseInt(ghostEl.style.width)) * 100 +
                             '% ' +
                             (tapDistanceTop / parseInt(ghostEl.style.height)) * 100 +
-                            '%'
+                            '%',
                     );
                 }
             },
@@ -2260,14 +2279,14 @@
                 /**Event*/
                 evt,
                 /**boolean*/
-                fallback
+                fallback,
             ) {
                 var _this = this;
 
                 var dataTransfer = evt.dataTransfer;
                 var options = _this.options;
                 pluginEvent('dragStart', this, {
-                    evt: evt
+                    evt: evt,
                 });
 
                 if (Sortable.eventCanceled) {
@@ -2301,7 +2320,7 @@
 
                     _dispatchEvent({
                         sortable: _this,
-                        name: 'clone'
+                        name: 'clone',
                     });
                 });
                 !fallback && toggleClass(dragEl, options.dragClass, true); // Set proper drop events
@@ -2337,7 +2356,7 @@
             // Returns true - if no further action is needed (either inserted or another condition)
             _onDragOver: function _onDragOver(
                 /**Event*/
-                evt
+                evt,
             ) {
                 var el = this.el,
                     target = evt.target,
@@ -2381,13 +2400,13 @@
                                         target,
                                         getRect(target),
                                         evt,
-                                        after
+                                        after,
                                     );
                                 },
-                                changed: changed
+                                changed: changed,
                             },
-                            extra
-                        )
+                            extra,
+                        ),
                     );
                 } // Capture animation state
 
@@ -2403,7 +2422,7 @@
 
                 function completed(insertion) {
                     dragOverEvent('dragOverCompleted', {
-                        insertion: insertion
+                        insertion: insertion,
                     });
 
                     if (insertion) {
@@ -2421,7 +2440,7 @@
                                 putSortable
                                     ? putSortable.options.ghostClass
                                     : activeSortable.options.ghostClass,
-                                false
+                                false,
                             );
                             toggleClass(dragEl, options.ghostClass, true);
                         }
@@ -2474,7 +2493,7 @@
                         toEl: el,
                         newIndex: newIndex,
                         newDraggableIndex: newDraggableIndex,
-                        originalEvent: evt
+                        originalEvent: evt,
                     });
                 }
 
@@ -2506,7 +2525,7 @@
                               this,
                               activeSortable,
                               dragEl,
-                              evt
+                              evt,
                           )) &&
                               group.checkPut(this, activeSortable, dragEl, evt)))
                 ) {
@@ -2563,7 +2582,7 @@
                                 target,
                                 targetRect,
                                 evt,
-                                !!target
+                                !!target,
                             ) !== false
                         ) {
                             capture();
@@ -2581,7 +2600,7 @@
                             differentRowCol = !_dragElInRowColumn(
                                 (dragEl.animated && dragEl.toRect) || dragRect,
                                 (target.animated && target.toRect) || targetRect,
-                                vertical
+                                vertical,
                             ),
                             side1 = vertical ? 'top' : 'left',
                             scrolledPastTop =
@@ -2606,7 +2625,7 @@
                                 ? options.swapThreshold
                                 : options.invertedSwapThreshold,
                             isCircumstantialInvert,
-                            lastTarget === target
+                            lastTarget === target,
                         );
                         var sibling;
 
@@ -2641,7 +2660,7 @@
                             target,
                             targetRect,
                             evt,
-                            after
+                            after,
                         );
 
                         if (moveVector !== false) {
@@ -2658,7 +2677,7 @@
                             } else {
                                 target.parentNode.insertBefore(
                                     dragEl,
-                                    after ? nextSibling : target
+                                    after ? nextSibling : target,
                                 );
                             } // Undo chrome's scroll adjustment (has no effect on other browsers)
 
@@ -2666,7 +2685,7 @@
                                 scrollBy(
                                     scrolledPastTop,
                                     0,
-                                    scrollBefore - scrolledPastTop.scrollTop
+                                    scrollBefore - scrolledPastTop.scrollTop,
                                 );
                             }
 
@@ -2675,7 +2694,7 @@
 
                             if (targetBeforeFirstSwap !== undefined && !isCircumstantialInvert) {
                                 targetMoveDistance = Math.abs(
-                                    targetBeforeFirstSwap - getRect(target)[side1]
+                                    targetBeforeFirstSwap - getRect(target)[side1],
                                 );
                             }
 
@@ -2710,7 +2729,7 @@
             },
             _onDrop: function _onDrop(
                 /**Event*/
-                evt
+                evt,
             ) {
                 var el = this.el,
                     options = this.options; // Get the index of the dragged element within its parent
@@ -2718,7 +2737,7 @@
                 newIndex = index(dragEl);
                 newDraggableIndex = index(dragEl, options.draggable);
                 pluginEvent('drop', this, {
-                    evt: evt
+                    evt: evt,
                 });
                 parentEl = dragEl && dragEl.parentNode; // Get again after plugin event
 
@@ -2788,7 +2807,7 @@
                                 putSortable
                                     ? putSortable.options.ghostClass
                                     : this.options.ghostClass,
-                                false
+                                false,
                             );
                         }
 
@@ -2800,7 +2819,7 @@
                             toEl: parentEl,
                             newIndex: null,
                             newDraggableIndex: null,
-                            originalEvent: evt
+                            originalEvent: evt,
                         });
 
                         if (rootEl !== parentEl) {
@@ -2811,14 +2830,14 @@
                                     name: 'add',
                                     toEl: parentEl,
                                     fromEl: rootEl,
-                                    originalEvent: evt
+                                    originalEvent: evt,
                                 }); // Remove event
 
                                 _dispatchEvent({
                                     sortable: this,
                                     name: 'remove',
                                     toEl: parentEl,
-                                    originalEvent: evt
+                                    originalEvent: evt,
                                 }); // drag from one list and drop into another
 
                                 _dispatchEvent({
@@ -2826,14 +2845,14 @@
                                     name: 'sort',
                                     toEl: parentEl,
                                     fromEl: rootEl,
-                                    originalEvent: evt
+                                    originalEvent: evt,
                                 });
 
                                 _dispatchEvent({
                                     sortable: this,
                                     name: 'sort',
                                     toEl: parentEl,
-                                    originalEvent: evt
+                                    originalEvent: evt,
                                 });
                             }
 
@@ -2846,14 +2865,14 @@
                                         sortable: this,
                                         name: 'update',
                                         toEl: parentEl,
-                                        originalEvent: evt
+                                        originalEvent: evt,
                                     });
 
                                     _dispatchEvent({
                                         sortable: this,
                                         name: 'sort',
                                         toEl: parentEl,
-                                        originalEvent: evt
+                                        originalEvent: evt,
                                     });
                                 }
                             }
@@ -2870,7 +2889,7 @@
                                 sortable: this,
                                 name: 'end',
                                 toEl: parentEl,
-                                originalEvent: evt
+                                originalEvent: evt,
                             }); // Save sorting
 
                             this.save();
@@ -2890,7 +2909,7 @@
             },
             handleEvent: function handleEvent(
                 /**Event*/
-                evt
+                evt,
             ) {
                 switch (evt.type) {
                     case 'drop':
@@ -3070,12 +3089,12 @@
                     css(cloneEl, 'display', '');
                     cloneHidden = false;
                 }
-            }
+            },
         };
 
     function _globalDragOver(
         /**Event*/
-        evt
+        evt,
     ) {
         if (evt.dataTransfer) {
             evt.dataTransfer.dropEffect = 'move';
@@ -3092,7 +3111,7 @@
         targetEl,
         targetRect,
         originalEvent,
-        willInsertAfter
+        willInsertAfter,
     ) {
         var evt,
             sortable = fromEl[expando],
@@ -3102,7 +3121,7 @@
         if (window.CustomEvent && !IE11OrLess && !Edge) {
             evt = new CustomEvent('move', {
                 bubbles: true,
-                cancelable: true
+                cancelable: true,
             });
         } else {
             evt = document.createEvent('Event');
@@ -3154,7 +3173,7 @@
         swapThreshold,
         invertedSwapThreshold,
         invertSwap,
-        isLastTarget
+        isLastTarget,
     ) {
         var mouseOnAxis = vertical ? evt.clientY : evt.clientX,
             targetLength = vertical ? targetRect.height : targetRect.width,
@@ -3291,7 +3310,7 @@
         nextTick: _nextTick,
         cancelNextTick: _cancelNextTick,
         detectDirection: _detectDirection,
-        getChild: getChild
+        getChild: getChild,
     };
     /**
      * Get the Sortable instance of an element
@@ -3320,7 +3339,7 @@
         plugins.forEach(function(plugin) {
             if (!plugin.prototype || !plugin.prototype.constructor) {
                 throw 'Sortable: Mounted plugin must be a constructor function, not '.concat(
-                    {}.toString.call(plugin)
+                    {}.toString.call(plugin),
                 );
             }
 
@@ -3355,7 +3374,7 @@
                 scroll: true,
                 scrollSensitivity: 30,
                 scrollSpeed: 10,
-                bubbleScroll: true
+                bubbleScroll: true,
             }; // Bind all private methods
 
             for (var fn in this) {
@@ -3436,7 +3455,7 @@
                         pointerElemChangedInterval = setInterval(function() {
                             var newElem = getParentAutoScrollElement(
                                 document.elementFromPoint(x, y),
-                                true
+                                true,
                             );
 
                             if (newElem !== ogElemScroller) {
@@ -3461,11 +3480,11 @@
 
                     autoScroll(evt, this.options, getParentAutoScrollElement(elem, false), false);
                 }
-            }
+            },
         };
         return _extends(AutoScroll, {
             pluginName: 'scroll',
-            initializeByDefault: true
+            initializeByDefault: true,
         });
     }
 
@@ -3595,7 +3614,7 @@
                                         scrollOffsetY,
                                         evt,
                                         touchEvt$1,
-                                        autoScrolls[this.layer].el
+                                        autoScrolls[this.layer].el,
                                     ) !== 'continue'
                                 ) {
                                     return;
@@ -3604,9 +3623,9 @@
 
                             scrollBy(autoScrolls[this.layer].el, scrollOffsetX, scrollOffsetY);
                         }.bind({
-                            layer: layersOut
+                            layer: layersOut,
                         }),
-                        24
+                        24,
                     );
                 }
             }
@@ -3639,7 +3658,7 @@
             dispatchSortableEvent('spill');
             this.onSpill({
                 dragEl: dragEl,
-                putSortable: putSortable
+                putSortable: putSortable,
             });
         }
     };
@@ -3675,11 +3694,11 @@
                 putSortable.animateAll();
             }
         },
-        drop: drop
+        drop: drop,
     };
 
     _extends(Revert, {
-        pluginName: 'revertOnSpill'
+        pluginName: 'revertOnSpill',
     });
 
     function Remove() {}
@@ -3693,11 +3712,11 @@
             dragEl.parentNode && dragEl.parentNode.removeChild(dragEl);
             parentSortable.animateAll();
         },
-        drop: drop
+        drop: drop,
     };
 
     _extends(Remove, {
-        pluginName: 'removeOnSpill'
+        pluginName: 'removeOnSpill',
     });
 
     Sortable.mount(new AutoScrollPlugin());
@@ -3739,7 +3758,7 @@
             .style('cursor', 'help')
             .attr(
                 'title',
-                'Drag items to reorder levels.\n Double click items to show/hide levels.'
+                'Drag items to reorder levels.\n Double click items to show/hide levels.',
             );
         var group_ul = this.groupControl.append('ul').attr('id', 'group-control');
 
@@ -3795,7 +3814,7 @@
                 //draw the chart
                 updateGroupControl.call(chart);
                 chart.draw();
-            }
+            },
         });
 
         updateGroupControl.call(this);
@@ -3818,11 +3837,76 @@
             });
     }
 
+    function updateDateRangeInput() {
+        var _this = this;
+
+        if (this.config.use_dates) {
+            var dateRangeInput = this.controls.wrap
+                .selectAll('.control-group')
+                .filter(function(d) {
+                    return d.label === 'Date Range';
+                })
+                .selectAll('input');
+
+            // Set initial date range.
+            var minDate = new Date(
+                d3.min(this.raw_data, function(d) {
+                    return d.date_parsed;
+                }),
+            );
+            var maxDate = new Date(
+                d3.max(this.raw_data, function(d) {
+                    return d.date_parsed;
+                }),
+            );
+
+            // Initialize daterangepicker.
+            $(dateRangeInput.node()).daterangepicker(
+                // options
+                {
+                    startDate: minDate,
+                    endDate: maxDate,
+                    minDate: minDate,
+                    maxDate: maxDate,
+                    ranges: {
+                        All: [minDate, maxDate],
+                        'Last 7 Days': [
+                            moment(maxDate)
+                                .subtract(7, 'days')
+                                .add(1, 'day'),
+                            maxDate,
+                        ],
+                        'Last 2 Weeks': [
+                            moment(maxDate)
+                                .subtract(2, 'weeks')
+                                .add(1, 'day'),
+                            maxDate,
+                        ],
+                        'Last Month': [
+                            moment(maxDate)
+                                .subtract(1, 'month')
+                                .add(1, 'day'),
+                            maxDate,
+                        ],
+                    },
+                },
+                // callback
+                function(start, end, label) {
+                    _this.raw_data = _this.initial_data.filter(function(d) {
+                        return start <= d.date_parsed && d.date_parsed <= end;
+                    });
+                    _this.draw();
+                },
+            );
+        }
+    }
+
     function onLayout() {
         var chart = this;
         this.list = chart.wrap.append('div').attr('class', 'nested-data-explorer');
         makeGroupControl.call(this);
         updateSortCheckbox.call(this);
+        updateDateRangeInput.call(this);
     }
 
     function onPreprocess() {}
@@ -3900,7 +3984,7 @@
                             return {
                                 date: m.key,
                                 value: m.values[metricObj.label],
-                                formatted: m.values[metricObj.label + '_formatted']
+                                formatted: m.values[metricObj.label + '_formatted'],
                             };
                         });
                     }
@@ -3950,7 +4034,7 @@
             .set(
                 this.filtered_data.map(function(m) {
                     return m.date_interval;
-                })
+                }),
             )
             .values();
         //  .filter(f => f != 'null');
@@ -4086,14 +4170,14 @@
             .domain(
                 d3.extent(d, function(d) {
                     return +d.value;
-                })
+                }),
             )
             .range([spark.height - spark.offset, spark.offset]);
 
         //render the svg
         var svg = cell.append('svg').attr({
             width: spark.width,
-            height: spark.height
+            height: spark.height,
         });
 
         var point_g = svg
@@ -4146,7 +4230,7 @@
                     class: 'sparkLine',
                     d: draw_sparkline,
                     fill: 'none',
-                    stroke: '#999'
+                    stroke: '#999',
                 });
 
             point_g
@@ -4274,7 +4358,7 @@
             li_data.values.children = makeNestLevel.call(
                 chart,
                 li_data.values.childrenKey,
-                li_data.values.raw
+                li_data.values.raw,
             );
             li_data.values.childrenStatus = 'ready';
             drawListLevel.call(chart, li, li_data.values.children, false, iterate);
@@ -4373,7 +4457,7 @@
                         d.sparkline,
                         d3.select(this),
                         d.fillEmptyCells,
-                        d.type
+                        d.type,
                     );
                 });
         }
@@ -4457,7 +4541,7 @@
         onDatatransform: onDatatransform,
         onDraw: onDraw,
         onResize: onResize,
-        onDestroy: onDestroy
+        onDestroy: onDestroy,
     };
 
     function layout(element) {
@@ -4484,7 +4568,7 @@
             '.wc-chart path.selected{',
             'stroke-width:5px;',
             'stroke:orange;',
-            '}'
+            '}',
         ];
         var style = document.createElement('style');
         style.type = 'text/css';
@@ -4505,19 +4589,19 @@
         var syncedSettings = configuration.syncSettings(mergedSettings);
         var syncedControlInputs = configuration.syncControlInputs(
             configuration.controlInputs(),
-            syncedSettings
+            syncedSettings,
         );
         var controls = webcharts.createControls(
             document.querySelector(element).querySelector('#nde-controls'),
             {
                 location: 'top',
-                inputs: syncedControlInputs
-            }
+                inputs: syncedControlInputs,
+            },
         );
         var chart = webcharts.createChart(
             document.querySelector(element).querySelector('#nde-table'),
             syncedSettings,
-            controls
+            controls,
         );
 
         //Define chart callbacks.
@@ -4526,7 +4610,7 @@
         } //listing
         var listing = webcharts.createTable(
             document.querySelector(element).querySelector('#nde-details'),
-            configuration.listingSettings()
+            configuration.listingSettings(),
         );
         chart.listing = listing;
         listing.chart = chart;

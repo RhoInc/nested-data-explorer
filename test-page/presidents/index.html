@@ -1,49 +1,54 @@
+<!DOCTYPE html>
 <html>
     <head>
-      <title>nested-data-explorer - Example</title>
-      <meta http-equiv = 'Content-Type' content = 'text/html; charset = utf-8'>
+        <title>nested-data-explorer - Presidents</title>
+        <meta http-equiv="Content-Type" content="text/html; charset = utf-8" />
 
-      <script type = 'text/javascript' src = 'https://d3js.org/d3.v3.js'></script>
-      <script type = 'text/javascript' src = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts/build/webcharts.js'></script>
-      <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+        <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/gh/RhoInc/Webcharts@1/build/webcharts.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/daterangepicker@3/daterangepicker.min.js"
+        ></script>
+        <script type="text/javascript" src="../../nestedDataExplorer.js"></script>
 
-      <script type = 'text/javascript' src = '../../nestedDataExplorer.js'></script>
-
-      <link type = 'text/css' rel = 'stylesheet' href = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts/css/webcharts.css'>
-      <link type='text/css' rel='stylesheet' href='../../nestedDataExplorer.css'>
-      <link type = 'text/css' rel = 'stylesheet' href = '../index.css'>
+        <link
+            type="text/css"
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/RhoInc/Webcharts@1/css/webcharts.min.css"
+        />
+        <link
+            type="text/css"
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/daterangepicker@3/daterangepicker.css"
+        />
+        <link type="text/css" rel="stylesheet" href="../../nestedDataExplorer.css" />
+        <link type="text/css" rel="stylesheet" href="../index.css" />
     </head>
 
     <body>
-      <div id = 'title'>nested-data-explorer</div>
-      <div id = 'subtitle'>Presidents Example</div>
-      <div id= 'info'>Nested data explorer for the first 44 US Presidents (<a href="https://gist.github.com/namuol/2657233">data</a>). Sparklines show year of inauguration. Code, details and documentation are available on <a href="https://github.com/RhoInc/nested-data-explorer">github</a>.</div>
-      <div id = 'container'></div>
+        <div id="title">nested-data-explorer</div>
+        <div id="subtitle">Presidents</div>
+        <div id="info">
+            Nested data explorer for the first 44 US Presidents (<a
+                href="https://gist.github.com/namuol/2657233"
+                >data</a
+            >). Sparklines show year of inauguration. Code, details and documentation are available
+            on <a href="https://github.com/RhoInc/nested-data-explorer">github</a>.
+        </div>
+        <div id="container"></div>
     </body>
 
-    <script type = 'text/javascript'>
-      const settings = {
-          group_options: [
-            { value_col: 'Presidency', label: 'Presidency' },
-            { value_col: 'President', label: 'President' },
-            { value_col: 'Party', label: 'Party' },
-            { value_col: 'Home State', label: 'Home State' },
-          ],
-          groups: ['Party'],
-          date_col: "Took office",
-          date_format: "%d/%m/%Y",
-          show_sparklines: true,
-          spark: {
-            interval: '%Y',
-            width: 100,
-            height: 25,
-            offset: 4
-          },
-          
-        }
-      const chart = nestedDataExplorer('#container', settings);
-      d3.csv('presidents.csv', function (data) {
-        chart.init(data);
-      });
-</script>
+    <script type="text/javascript" src="./index.js"></script>
 </html>

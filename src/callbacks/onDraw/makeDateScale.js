@@ -4,7 +4,7 @@ export default function makeDateScale() {
     //  .filter(f => f != 'null');
 
     spark.dates = spark.dates.sort(
-        (a, b) => d3.time.format(spark.interval).parse(a) - d3.time.format(spark.interval).parse(b)
+        (a, b) => d3.time.format(spark.interval).parse(a) - d3.time.format(spark.interval).parse(b),
     );
     spark.x = d3.scale
         .ordinal()

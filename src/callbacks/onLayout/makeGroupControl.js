@@ -58,7 +58,7 @@ export default function makeGroupControl() {
             //draw the chart
             updateGroupOptions.call(chart);
             chart.draw();
-        }
+        },
     });
 
     updateGroupOptions.call(this);

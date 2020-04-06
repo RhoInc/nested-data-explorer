@@ -20,7 +20,7 @@ export default function drawSparkline(raw, cell, fillEmptyCells, type) {
     //render the svg
     var svg = cell.append('svg').attr({
         width: spark.width,
-        height: spark.height
+        height: spark.height,
     });
 
     var point_g = svg
@@ -63,7 +63,7 @@ export default function drawSparkline(raw, cell, fillEmptyCells, type) {
                 class: 'sparkLine',
                 d: draw_sparkline,
                 fill: 'none',
-                stroke: '#999'
+                stroke: '#999',
             });
 
         point_g

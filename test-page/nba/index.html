@@ -1,46 +1,54 @@
+<!DOCTYPE html>
 <html>
     <head>
-      <title>nested-data-explorer - Example</title>
-      <meta http-equiv = 'Content-Type' content = 'text/html; charset = utf-8'>
+        <title>nested-data-explorer - NBA</title>
+        <meta http-equiv="Content-Type" content="text/html; charset = utf-8" />
 
-      <script type = 'text/javascript' src = 'https://d3js.org/d3.v3.js'></script>
-      <script type = 'text/javascript' src = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts/build/webcharts.js'></script>
-      <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+        <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/gh/RhoInc/Webcharts@1/build/webcharts.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/daterangepicker@3/daterangepicker.min.js"
+        ></script>
+        <script type="text/javascript" src="../../nestedDataExplorer.js"></script>
 
-      <script type = 'text/javascript' src = '../../nestedDataExplorer.js'></script>
-
-      <link type = 'text/css' rel = 'stylesheet' href = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts/css/webcharts.css'>
-      <link type='text/css' rel='stylesheet' href='../../nestedDataExplorer.css'>
-      <link type = 'text/css' rel = 'stylesheet' href = '../index.css'>
+        <link
+            type="text/css"
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/RhoInc/Webcharts@1/css/webcharts.min.css"
+        />
+        <link
+            type="text/css"
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/daterangepicker@3/daterangepicker.css"
+        />
+        <link type="text/css" rel="stylesheet" href="../../nestedDataExplorer.css" />
+        <link type="text/css" rel="stylesheet" href="../index.css" />
     </head>
 
     <body>
-      <div id = 'title'>nested-data-explorer</div>
-      <div id = 'subtitle'>NBA Example</div>
-      <div id= 'info'>Nested data explorer for 2020 NBA statistics through Jan 1st (<a href="https://www.basketball-reference.com/leagues/NBA_2020_totals.html">data</a>). Code, details and documentation are available on <a href="https://github.com/RhoInc/nested-data-explorer">github</a>.</div>
-      <div id = 'container'></div>
+        <div id="title">nested-data-explorer</div>
+        <div id="subtitle">NBA</div>
+        <div id="info">
+            Nested data explorer for 2020 NBA statistics through Jan 1st (<a
+                href="https://www.basketball-reference.com/leagues/NBA_2020_totals.html"
+                >data</a
+            >). Code, details and documentation are available on
+            <a href="https://github.com/RhoInc/nested-data-explorer">github</a>.
+        </div>
+        <div id="container"></div>
     </body>
 
-    <script type = 'text/javascript'>
-      const settings = {
-          group_options: [
-            { value_col: 'Player', label: 'Player' },
-            { value_col: 'Pos', label: 'Pos' },
-            { value_col: 'Age', label: 'Age' },
-            { value_col: 'Tm', label: 'Team' },
-          ],
-          groups: ['Pos'],
-          metrics:[
-            {label:"Points", calc:d => d3.sum(d,d=>d.PTS),format:"0.0f"},
-            {label: "Minutes", calc: d => d3.sum(d, d => d.MP),format:'0.0f' },
-            {label: "Points Per Minute", calc: function(d){return +this.Points/+this.Minutes}, format: "0.2f" }
-          ]
-        }
-      const chart = nestedDataExplorer('#container', settings);
-      d3.csv('2020stats.csv', function (data) {
-        data.forEach(function(m){
-        })
-        chart.init(data);
-      });
-</script>
+    <script type="text/javascript" src="./index.js"></script>
 </html>

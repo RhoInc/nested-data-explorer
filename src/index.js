@@ -19,19 +19,19 @@ export default function nestedDataExplorer(element = 'body', settings = {}) {
     const syncedSettings = configuration.syncSettings(mergedSettings);
     const syncedControlInputs = configuration.syncControlInputs(
         configuration.controlInputs(),
-        syncedSettings
+        syncedSettings,
     );
     const controls = createControls(
         document.querySelector(element).querySelector('#nde-controls'),
         {
             location: 'top',
-            inputs: syncedControlInputs
-        }
+            inputs: syncedControlInputs,
+        },
     );
     const chart = createChart(
         document.querySelector(element).querySelector('#nde-table'),
         syncedSettings,
-        controls
+        controls,
     );
 
     //Define chart callbacks.
@@ -41,7 +41,7 @@ export default function nestedDataExplorer(element = 'body', settings = {}) {
     //listing
     const listing = createTable(
         document.querySelector(element).querySelector('#nde-details'),
-        configuration.listingSettings()
+        configuration.listingSettings(),
     );
     chart.listing = listing;
     listing.chart = chart;

@@ -6,4 +6,5 @@ export default function onInit() {
     makeOverall.call(this);
     makeDateInterval.call(this);
     initListing.call(this);
+    this.initial_data = this.raw_data;
 }

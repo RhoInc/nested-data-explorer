@@ -1,4 +1,12 @@
 export default function syncSettings(settings) {
+    // date settings
+    settings.use_dates =
+        settings.date_col &&
+        window.jQuery !== undefined &&
+        window.moment !== undefined &&
+        window.daterangepicker;
+
+    // sort settings
     if (settings.sort_alpha === true) {
         settings.sort_direction = 'ascending';
         settings.sort_column = 'key';
@@ -40,7 +48,7 @@ export default function syncSettings(settings) {
             showSparkline: true,
             visible: settings.hide_count ? false : true,
             fillEmptyCells: true,
-            type: 'bar'
+            type: 'bar',
         });
     }
     if (metricNames.indexOf('%') == -1) {
@@ -55,7 +63,7 @@ export default function syncSettings(settings) {
             format: '0.1%',
             showSparkline: false,
             visible: settings.hide_percent ? false : true,
-            fillEmptyCells: true
+            fillEmptyCells: true,
         });
     }
 

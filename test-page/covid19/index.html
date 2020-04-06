@@ -1,28 +1,54 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>nested-data-explorer: COVID19</title>
-        <meta http-equiv = 'Content-Type' content = 'text/html; charset = utf-8'>
+        <title>nested-data-explorer - COVID19</title>
+        <meta http-equiv="Content-Type" content="text/html; charset = utf-8" />
 
-        <script type = 'text/javascript' src = 'https://d3js.org/d3.v3.min.js'></script>
-        <script type = 'text/javascript' src = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts@1/build/webcharts.min.js'></script>
-        <script type = 'text/javascript' src = '../../nestedDataExplorer.js'></script>
+        <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/gh/RhoInc/Webcharts@1/build/webcharts.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/daterangepicker@3/daterangepicker.min.js"
+        ></script>
+        <script type="text/javascript" src="../../nestedDataExplorer.js"></script>
 
-        <link type = 'text/css' rel = 'stylesheet' href = 'https://cdn.jsdelivr.net/gh/RhoInc/Webcharts@1/css/webcharts.min.css'>
-        <link type = 'text/css' rel = 'stylesheet' href = '../../nestedDataExplorer.css'>
-        <link type = 'text/css' rel = 'stylesheet' href = '../index.css'>
+        <link
+            type="text/css"
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/RhoInc/Webcharts@1/css/webcharts.min.css"
+        />
+        <link
+            type="text/css"
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/daterangepicker@3/daterangepicker.css"
+        />
+        <link type="text/css" rel="stylesheet" href="../../nestedDataExplorer.css" />
+        <link type="text/css" rel="stylesheet" href="../index.css" />
     </head>
 
     <body>
-        <div id = 'title'>nested-data-explorer</div>
-        <div id = 'subtitle'>COVID19</div>
-        <div id = 'info'>
-            Nested data explorer of COVID19 cases by state from <a href = 'https://covidtracking.com/' target = '_blank'>The COVID Tracking Project</a>.
-            Sparklines display frequencies or rates by day.
-            Code, details and documentation are available on <a href = 'https://github.com/RhoInc/nested-data-explorer' target = '_blank'>GitHub</a>.
+        <div id="title">nested-data-explorer</div>
+        <div id="subtitle">COVID19</div>
+        <div id="info">
+            Nested data explorer of COVID19 cases by state from
+            <a href="https://covidtracking.com/" target="_blank">The COVID Tracking Project</a>.
+            Sparklines display frequencies or rates by day. Code, details and documentation are
+            available on
+            <a href="https://github.com/RhoInc/nested-data-explorer" target="_blank">GitHub</a>.
         </div>
-        <div id = 'container'></div>
+        <div id="container"></div>
     </body>
 
-    <script type = 'text/javascript' src = './index.js'></script>
+    <script type="text/javascript" src="./index.js"></script>
 </html>
