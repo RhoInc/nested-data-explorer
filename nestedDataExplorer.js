@@ -162,6 +162,7 @@
             show_sparklines: false,
             date_col: null,
             date_format: null, // if specified, will attempt to parse date_col with d3.time.format(date_format)
+            date_ranges: {},
             show_overall: true,
             spark: {
                 interval: '%Y-%m',
@@ -3868,27 +3869,10 @@
                     endDate: maxDate,
                     minDate: minDate,
                     maxDate: maxDate,
-                    ranges: {
-                        All: [minDate, maxDate],
-                        'Last 7 Days': [
-                            moment(maxDate)
-                                .subtract(7, 'days')
-                                .add(1, 'day'),
-                            maxDate,
-                        ],
-                        'Last 2 Weeks': [
-                            moment(maxDate)
-                                .subtract(2, 'weeks')
-                                .add(1, 'day'),
-                            maxDate,
-                        ],
-                        'Last Month': [
-                            moment(maxDate)
-                                .subtract(1, 'month')
-                                .add(1, 'day'),
-                            maxDate,
-                        ],
-                    },
+                    ranges:
+                        this.config.date_ranges && Object.keys(this.config.date_ranges).length > 0
+                            ? Object.assign({ All: [minDate, maxDate] }, this.config.date_ranges)
+                            : null,
                 },
                 // callback
                 function(start, end, label) {

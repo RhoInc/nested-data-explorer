@@ -48,6 +48,12 @@ fetch('https://covidtracking.com/api/states/daily')
                 });
             })
             .entries(data);
+        const minDate = new Date(
+            d3.min(data, d => d3.time.format('%Y%m%d').parse(d.date.toString())),
+        );
+        const maxDate = new Date(
+            d3.max(data, d => d3.time.format('%Y%m%d').parse(d.date.toString())),
+        );
         const instance = new nestedDataExplorer('#container', {
             sort_column: 'Cases',
             group_options: [{ value_col: 'state', label: 'State' }],
@@ -69,6 +75,26 @@ fetch('https://covidtracking.com/api/states/daily')
             ],
             date_col: 'date_string',
             date_format: '%Y%m%d',
+            date_ranges: {
+                'Last 7 Days': [
+                    moment(maxDate)
+                        .subtract(7, 'days')
+                        .add(1, 'day'),
+                    maxDate,
+                ],
+                'Last 2 Weeks': [
+                    moment(maxDate)
+                        .subtract(2, 'weeks')
+                        .add(1, 'day'),
+                    maxDate,
+                ],
+                'Last Month': [
+                    moment(maxDate)
+                        .subtract(1, 'month')
+                        .add(1, 'day'),
+                    maxDate,
+                ],
+            },
             show_sparklines: true,
             spark: {
                 interval: '%d%b%y',

@@ -17,27 +17,10 @@ export default function updateDateRangeInput() {
                 endDate: maxDate,
                 minDate,
                 maxDate,
-                ranges: {
-                    All: [minDate, maxDate],
-                    'Last 7 Days': [
-                        moment(maxDate)
-                            .subtract(7, 'days')
-                            .add(1, 'day'),
-                        maxDate,
-                    ],
-                    'Last 2 Weeks': [
-                        moment(maxDate)
-                            .subtract(2, 'weeks')
-                            .add(1, 'day'),
-                        maxDate,
-                    ],
-                    'Last Month': [
-                        moment(maxDate)
-                            .subtract(1, 'month')
-                            .add(1, 'day'),
-                        maxDate,
-                    ],
-                },
+                ranges:
+                    this.config.date_ranges && Object.keys(this.config.date_ranges).length > 0
+                        ? Object.assign({ All: [minDate, maxDate] }, this.config.date_ranges)
+                        : null,
             },
             // callback
             (start, end, label) => {
