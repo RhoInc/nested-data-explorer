@@ -14,7 +14,7 @@ export default function drawSparkline(raw, cell, fillEmptyCells, type) {
         .filter(f => f.value != null);
     var y = d3.scale
         .linear()
-        .domain(d3.extent(d, d => +d.value))
+        .domain(type !== 'bar' ? d3.extent(d, di => +di.value) : [0, d3.max(d, di => +di.value)])
         .range([spark.height - spark.offset, spark.offset]);
 
     //render the svg

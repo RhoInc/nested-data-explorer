@@ -4164,9 +4164,16 @@
         var y = d3.scale
             .linear()
             .domain(
-                d3.extent(d, function(d) {
-                    return +d.value;
-                }),
+                type !== 'bar'
+                    ? d3.extent(d, function(di) {
+                          return +di.value;
+                      })
+                    : [
+                          0,
+                          d3.max(d, function(di) {
+                              return +di.value;
+                          }),
+                      ],
             )
             .range([spark.height - spark.offset, spark.offset]);
 
