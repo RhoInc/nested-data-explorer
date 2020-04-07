@@ -52,7 +52,6 @@ export default function lineEvents(point_g) {
                 .attr('class', 'hover-value')
                 .text(d => d.formatted);
         })
-
         .on('mouseout', function(d) {
             let li = this.parentElement.parentElement.parentElement.parentElement;
             let row = d3.selectAll(li.children);

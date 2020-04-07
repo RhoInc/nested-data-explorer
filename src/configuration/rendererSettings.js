@@ -12,6 +12,7 @@ export default function rendererSettings() {
         date_col: null,
         date_format: null, // if specified, will attempt to parse date_col with d3.time.format(date_format)
         date_ranges: {},
+        date_range: null,
         show_overall: true,
         spark: {
             interval: '%Y-%m',
@@ -20,6 +21,6 @@ export default function rendererSettings() {
             offset: 3,
         },
         filters: [], // updated in sync settings
-        date_range: null,
+        details: [], // updated in sync settings
     };
 }

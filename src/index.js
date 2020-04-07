@@ -41,7 +41,7 @@ export default function nestedDataExplorer(element = 'body', settings = {}) {
     //listing
     const listing = createTable(
         document.querySelector(element).querySelector('#nde-details'),
-        configuration.listingSettings(),
+        configuration.listingSettings(syncedSettings),
     );
     chart.listing = listing;
     listing.chart = chart;

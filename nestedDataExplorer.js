@@ -163,6 +163,7 @@
             date_col: null,
             date_format: null, // if specified, will attempt to parse date_col with d3.time.format(date_format)
             date_ranges: {},
+            date_range: null,
             show_overall: true,
             spark: {
                 interval: '%Y-%m',
@@ -171,7 +172,7 @@
                 offset: 3,
             },
             filters: [], // updated in sync settings
-            date_range: null,
+            details: [], // updated in sync settings
         };
     }
 
@@ -306,14 +307,24 @@
         return controlInputs;
     }
 
-    function listingSettings() {
-        return {
-            cols: null,
-            searchable: true,
-            sortable: true,
-            pagination: true,
-            exportable: true,
-        };
+    function listingSettings(settings) {
+        return Object.assign(
+            {
+                cols:
+                    Array.isArray(settings.details) && settings.details.length
+                        ? settings.details.map(function(detail) {
+                              return detail.value_col || detail;
+                          })
+                        : null,
+                headers:
+                    Array.isArray(settings.details) && settings.details.length
+                        ? settings.details.map(function(detail) {
+                              return detail.label || detail.value_col || detail;
+                          })
+                        : null,
+            },
+            settings,
+        );
     }
 
     var configuration = {
@@ -348,10 +359,11 @@
 
     function initListing() {
         var chart = this;
-        var configCols = ['overall', 'date_parsed', 'date_interval'];
-        this.listing.config.cols = Object.keys(this.initial_data[0]).filter(function(f) {
-            return configCols.indexOf(f) == -1;
-        });
+        this.listing.config.cols =
+            this.listing.config.cols ||
+            Object.keys(this.initial_data[0]).filter(function(f) {
+                return ['overall', 'date_parsed', 'date_interval'].indexOf(f) == -1;
+            });
         this.listing.init([]);
         this.listing.wrap.insert('h3', '*');
         this.listing.wrap
@@ -4594,7 +4606,7 @@
         } //listing
         var listing = webcharts.createTable(
             document.querySelector(element).querySelector('#nde-details'),
-            configuration.listingSettings(),
+            configuration.listingSettings(syncedSettings),
         );
         chart.listing = listing;
         listing.chart = chart;
