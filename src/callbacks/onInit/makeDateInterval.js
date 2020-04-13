@@ -9,5 +9,13 @@ export default function makeDateInterval() {
                     : null;
             return d;
         });
+        this.config.date_range =
+            Array.isArray(this.config.date_range) &&
+            this.config.date_range.length === 2 &&
+            this.config.date_range.every(
+                date => Object.prototype.toString.call(date) === '[object Date]',
+            )
+                ? this.config.date_range
+                : d3.extent(this.raw_data, d => d.date_parsed).map(date => new Date(date));
     }
 }

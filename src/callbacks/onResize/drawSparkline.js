@@ -1,108 +1,24 @@
-import lineEvents from './lineEvents';
+import defineData from './drawSparkline/data';
+import defineY from './drawSparkline/y';
+import defineSvg from './drawSparkline/svg';
+import defineG from './drawSparkline/g';
+import defineOverlay from './drawSparkline/overlay';
+import drawPoint from './drawSparkline/drawPoint';
+import drawLine from './drawSparkline/drawLine';
+import drawBar from './drawSparkline/drawBar';
+//import drawHistogram from './drawSparkline/drawHistogram';
+import lineEvents from './drawSparkline/lineEvents';
 
 export default function drawSparkline(raw, cell, fillEmptyCells, type) {
-    let chart = this;
-    let spark = this.config.spark;
-    if (type == undefined) type = 'line';
-    let d = spark.dates
-        .map(function(date) {
-            let obj = { date: date };
-            let match = raw.filter(d => d.date == date);
-            obj.value = match.length > 0 ? match[0].value : fillEmptyCells ? 0 : null;
-            return obj;
-        })
-        .filter(f => f.value != null);
-    var y = d3.scale
-        .linear()
-        .domain(type !== 'bar' ? d3.extent(d, di => +di.value) : [0, d3.max(d, di => +di.value)])
-        .range([spark.height - spark.offset, spark.offset]);
-
-    //render the svg
-    var svg = cell.append('svg').attr({
-        width: spark.width,
-        height: spark.height,
-    });
-
-    var point_g = svg
-        .selectAll('g')
-        .data(d)
-        .enter()
-        .append('g');
-    //transparent overlay to catch mouseover
-    point_g
-        .append('rect')
-        .attr('class', 'overlay')
-        .attr('height', spark.height)
-        .attr('width', spark.rangeband)
-        .attr('x', d => spark.x(d.date) - spark.rangeband / 2)
-        .attr('y', 0)
-        .attr('stroke', 'transparent')
-        .attr('fill', 'transparent');
-
-    if (d.length == 1) {
-        point_g
-            .append('circle')
-            .attr('cx', d => spark.x(d.date))
-            .attr('cy', d => y(d.value))
-            .attr('r', spark.rangeband / 2)
-            .attr('fill', '#999')
-            .attr('stroke', '#999');
-    }
-
-    if (type == 'line') {
-        var draw_sparkline = d3.svg
-            .line()
-            .interpolate('linear')
-            .x(d => spark.x(d.date))
-            .y(d => y(+d.value));
-
-        var sparkline = svg
-            .append('path')
-            .datum(d)
-            .attr({
-                class: 'sparkLine',
-                d: draw_sparkline,
-                fill: 'none',
-                stroke: '#999',
-            });
-
-        point_g
-            .append('circle')
-            .attr('cx', d => spark.x(d.date))
-            .attr('cy', d => y(d.value))
-            .attr('r', spark.rangeband)
-            .attr('fill', '#2b8cbe')
-            .attr('stroke', '#2b8cbe')
-            .classed('hidden', true);
-    }
-
-    if (type == 'bar') {
-        point_g
-            .append('rect')
-            .attr('class', 'bar')
-            .attr('y', d => y(d.value))
-            .attr('width', spark.rangeband)
-            .attr('x', d => spark.x(d.date) - spark.rangeband / 2)
-            .attr('height', d => spark.height - spark.offset - y(d.value))
-            .attr('stroke', '#999')
-            .attr('fill', '#999');
-    }
-
-    lineEvents.call(this, point_g);
-
-    //draw outliers
-    /*
-    var outliers = overTime.filter(f => f.outlier);
-    var outlier_circles = svg
-        .selectAll('circle.outlier')
-        .data(outliers)
-        .enter()
-        .append('circle')
-        .attr('class', 'circle outlier')
-        .attr('cx', d => x(d.studyday))
-        .attr('cy', d => y(d.value))
-        .attr('r', '2px')
-        .attr('stroke', color)
-        .attr('fill', color);  
-    */
+    if (type === undefined) type = 'line';
+    const spark = this.config.spark;
+    const data = defineData(spark, raw, fillEmptyCells);
+    const y = defineY(type, data, spark);
+    const svg = defineSvg(cell, spark);
+    const g = defineG(svg, data);
+    const overlay = defineOverlay(g, spark);
+    const point = data.length === 1 ? drawPoint(g, spark, y) : null;
+    const line = type === 'line' ? drawLine(spark, y, svg, data, g) : null;
+    const bar = type === 'bar' ? drawBar(g, y, spark) : null;
+    lineEvents.call(this, g);
 }

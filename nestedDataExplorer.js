@@ -163,7 +163,7 @@
             date_col: null,
             date_format: null, // if specified, will attempt to parse date_col with d3.time.format(date_format)
             date_ranges: {},
-            date_range: null,
+            date_range: [],
             show_overall: true,
             spark: {
                 interval: '%Y-%m',
@@ -354,6 +354,20 @@
                         : null;
                 return d;
             });
+            this.config.date_range =
+                Array.isArray(this.config.date_range) &&
+                this.config.date_range.length === 2 &&
+                this.config.date_range.every(function(date) {
+                    return Object.prototype.toString.call(date) === '[object Date]';
+                })
+                    ? this.config.date_range
+                    : d3
+                          .extent(this.raw_data, function(d) {
+                              return d.date_parsed;
+                          })
+                          .map(function(date) {
+                              return new Date(date);
+                          });
         }
     }
 
@@ -3877,8 +3891,8 @@
             $(dateRangeInput.node()).daterangepicker(
                 // options
                 {
-                    startDate: minDate,
-                    endDate: maxDate,
+                    startDate: this.config.date_range[0],
+                    endDate: this.config.date_range[1],
                     minDate: minDate,
                     maxDate: maxDate,
                     ranges:
@@ -3888,9 +3902,7 @@
                 },
                 // callback
                 function(start, end, label) {
-                    _this.raw_data = _this.initial_data.filter(function(d) {
-                        return start <= d.date_parsed && d.date_parsed <= end;
-                    });
+                    _this.config.date_range = [start.toDate(), end.toDate()];
                     _this.draw();
                 },
             );
@@ -3898,14 +3910,24 @@
     }
 
     function onLayout() {
-        var chart = this;
-        this.list = chart.wrap.append('div').attr('class', 'nested-data-explorer');
+        this.list = this.wrap.append('div').attr('class', 'nested-data-explorer');
         makeGroupControl.call(this);
         updateSortCheckbox.call(this);
         updateDateRangeInput.call(this);
     }
 
-    function onPreprocess() {}
+    function onPreprocess() {
+        var _this = this;
+
+        // Filter data on date range.
+        if (this.config.date_col)
+            this.raw_data = this.initial_data.filter(function(d) {
+                return (
+                    _this.config.date_range[0] <= d.date_parsed &&
+                    d.date_parsed <= _this.config.date_range[1]
+                );
+            });
+    }
 
     function onDatatransform() {}
 
@@ -3924,6 +3946,7 @@
         this[metric.label + '_formatted'] = metric_obj.formatted;
         metric_obj.title = metric.calcTitle == undefined ? null : metric.calcTitle.call(this, d);
         metric_obj.raw = d;
+
         return metric_obj;
     }
 
@@ -3965,7 +3988,7 @@
                 }
 
                 // get data for the sparkline (but don't do this if you're already calculating sparkline data)
-                if ((key != 'date_interval') & config.show_sparklines) {
+                if (key !== 'date_interval' && config.show_sparklines) {
                     obj.sparkline = makeNestLevel.call(chart, 'date_interval', d);
                 }
 
@@ -4053,115 +4076,63 @@
         spark.rangeband = spark.xBars.rangeBand();
     }
 
+    function defineMetricScales() {
+        var _this = this;
+
+        this.config.metrics.forEach(function(metric) {
+            metric.min = d3.min(
+                _this.nested_data.filter(function(d) {
+                    return d.values[metric.label] !== Infinity;
+                }),
+                function(d) {
+                    return d.values[metric.label];
+                },
+            );
+            metric.max = d3.max(
+                _this.nested_data.filter(function(d) {
+                    return d.values[metric.label] !== Infinity;
+                }),
+                function(d) {
+                    return d.values[metric.label];
+                },
+            );
+            metric.scale = d3.scale
+                .linear()
+                .domain([0, metric.max])
+                .range([
+                    _this.config.spark.offest,
+                    _this.config.spark.width - _this.config.spark.offset,
+                ]);
+        });
+    }
+
     function onDraw() {
-        var chart = this;
-        chart.listing.wrap.classed('hidden', true);
-        chart.wrap.classed('hidden', false);
-        chart.controls.wrap.classed('hidden', false);
+        this.listing.wrap.classed('hidden', true);
+        this.wrap.classed('hidden', false);
+        this.controls.wrap.classed('hidden', false);
         makeDateScale.call(this);
         this.nested_data = makeNestLevel.call(this, this.config.groups[0], this.filtered_data);
+        defineMetricScales.call(this);
     }
 
-    function drawListing(d, label) {
-        var chart = this;
-        chart.listing.wrap.classed('hidden', false);
-        chart.listing.wrap.select('h3').text('Showing ' + d.length + ' records for ' + label);
-        chart.listing.draw(d);
-        chart.wrap.classed('hidden', true);
-        chart.controls.wrap.classed('hidden', true);
-    }
-
-    function lineEvents(point_g) {
-        var chart = this;
-        point_g
-            .on('click', function(d) {
-                var value_cell = this.parentElement.parentElement.parentElement;
-                var cell_d = d3.select(value_cell).datum();
-
-                var raw = cell_d['raw'].filter(function(f) {
-                    return f.date_interval == d.date;
-                });
-                var label = cell_d['keyDesc'] + ' for time = ' + d.date;
-                drawListing.call(chart, raw, label);
-            })
-            .on('mouseover', function(d) {
-                // structure is g (this) -> svg -> div.sparkline -> div.value-cell -> li
-                var li_cell = this.parentElement.parentElement.parentElement.parentElement;
-                var valueCells = d3
-                    .selectAll(li_cell.children)
-                    .filter(function() {
-                        return this.classList.contains('value-cell');
-                    })
-                    .filter(function(f) {
-                        return f.showSparkline;
-                    });
-
-                var sparklines = valueCells.select('div.sparkline').select('svg');
-                var gs = sparklines.selectAll('g').filter(function(f) {
-                    return f.date == d.date;
-                });
-
-                // make circles visible
-                gs.select('circle').classed('hidden', false);
-                gs.select('rect.bar').classed('highlight', true);
-
-                //show time label
-                valueCells.select('div.value').classed('hidden', true);
-                var hoverCells = valueCells
-                    .append('div')
-                    .attr('class', 'hover')
-                    .datum(function(di) {
-                        var obj = { date: d.date };
-                        var val = di.sparkline.filter(function(f) {
-                            return f.date == d.date;
-                        })[0];
-                        obj.formatted = val ? val.formatted : '0';
-                        obj.value = val ? val.value : '0';
-                        return obj;
-                    });
-
-                hoverCells
-                    .append('div')
-                    .attr('class', 'hover-date')
-                    .text(function(d) {
-                        return d.date ? d.date : 'No Date';
-                    });
-                hoverCells
-                    .append('div')
-                    .attr('class', 'hover-value')
-                    .text(function(d) {
-                        return d.formatted;
-                    });
-            })
-            .on('mouseout', function(d) {
-                var li = this.parentElement.parentElement.parentElement.parentElement;
-                var row = d3.selectAll(li.children);
-                //hide point
-                row.selectAll('circle').classed('hidden', true);
-                row.selectAll('rect.bar').classed('highlight', false);
-
-                //show overall value
-                row.selectAll('div.value').classed('hidden', false);
-                row.selectAll('div.hover').remove();
-            });
-    }
-
-    function drawSparkline(raw, cell, fillEmptyCells, type) {
-        var spark = this.config.spark;
-        if (type == undefined) type = 'line';
-        var d = spark.dates
+    function data(spark, raw, fillEmptyCells) {
+        return spark.dates
             .map(function(date) {
                 var obj = { date: date };
                 var match = raw.filter(function(d) {
-                    return d.date == date;
+                    return d.date === date;
                 });
                 obj.value = match.length > 0 ? match[0].value : fillEmptyCells ? 0 : null;
+
                 return obj;
             })
-            .filter(function(f) {
-                return f.value != null;
+            .filter(function(d) {
+                return d.value !== null;
             });
-        var y = d3.scale
+    }
+
+    function y(type, d, spark) {
+        return d3.scale
             .linear()
             .domain(
                 type !== 'bar'
@@ -4176,20 +4147,26 @@
                       ],
             )
             .range([spark.height - spark.offset, spark.offset]);
+    }
 
-        //render the svg
-        var svg = cell.append('svg').attr({
+    function svg(cell, spark) {
+        return cell.append('svg').attr({
             width: spark.width,
             height: spark.height,
         });
+    }
 
-        var point_g = svg
+    function g(svg, d) {
+        return svg
             .selectAll('g')
             .data(d)
             .enter()
             .append('g');
-        //transparent overlay to catch mouseover
-        point_g
+    }
+
+    // Add transparent overlay to catch mouseover.
+    function overlay(g, spark) {
+        return g
             .append('rect')
             .attr('class', 'overlay')
             .attr('height', spark.height)
@@ -4200,91 +4177,185 @@
             .attr('y', 0)
             .attr('stroke', 'transparent')
             .attr('fill', 'transparent');
+    }
 
-        if (d.length == 1) {
-            point_g
-                .append('circle')
-                .attr('cx', function(d) {
-                    return spark.x(d.date);
-                })
-                .attr('cy', function(d) {
-                    return y(d.value);
-                })
-                .attr('r', spark.rangeband / 2)
-                .attr('fill', '#999')
-                .attr('stroke', '#999');
-        }
-
-        if (type == 'line') {
-            var draw_sparkline = d3.svg
-                .line()
-                .interpolate('linear')
-                .x(function(d) {
-                    return spark.x(d.date);
-                })
-                .y(function(d) {
-                    return y(+d.value);
-                });
-
-            var sparkline = svg
-                .append('path')
-                .datum(d)
-                .attr({
-                    class: 'sparkLine',
-                    d: draw_sparkline,
-                    fill: 'none',
-                    stroke: '#999',
-                });
-
-            point_g
-                .append('circle')
-                .attr('cx', function(d) {
-                    return spark.x(d.date);
-                })
-                .attr('cy', function(d) {
-                    return y(d.value);
-                })
-                .attr('r', spark.rangeband)
-                .attr('fill', '#2b8cbe')
-                .attr('stroke', '#2b8cbe')
-                .classed('hidden', true);
-        }
-
-        if (type == 'bar') {
-            point_g
-                .append('rect')
-                .attr('class', 'bar')
-                .attr('y', function(d) {
-                    return y(d.value);
-                })
-                .attr('width', spark.rangeband)
-                .attr('x', function(d) {
-                    return spark.x(d.date) - spark.rangeband / 2;
-                })
-                .attr('height', function(d) {
-                    return spark.height - spark.offset - y(d.value);
-                })
-                .attr('stroke', '#999')
-                .attr('fill', '#999');
-        }
-
-        lineEvents.call(this, point_g);
-
-        //draw outliers
-        /*
-        var outliers = overTime.filter(f => f.outlier);
-        var outlier_circles = svg
-            .selectAll('circle.outlier')
-            .data(outliers)
-            .enter()
+    function drawPoint(g, spark, y) {
+        return g
             .append('circle')
-            .attr('class', 'circle outlier')
-            .attr('cx', d => x(d.studyday))
-            .attr('cy', d => y(d.value))
-            .attr('r', '2px')
-            .attr('stroke', color)
-            .attr('fill', color);  
-        */
+            .attr('cx', function(d) {
+                return spark.x(d.date);
+            })
+            .attr('cy', function(d) {
+                return y(d.value);
+            })
+            .attr('r', 3) //spark.rangeband / 2)
+            .attr('fill', '#999')
+            .attr('stroke', '#999');
+    }
+
+    function drawLine(spark, y, svg, data, g) {
+        var draw_sparkline = d3.svg
+            .line()
+            .interpolate('linear')
+            .x(function(d) {
+                return spark.x(d.date);
+            })
+            .y(function(d) {
+                return y(+d.value);
+            });
+
+        var sparkline = svg
+            .append('path')
+            .datum(data)
+            .attr({
+                class: 'sparkLine',
+                d: draw_sparkline,
+                fill: 'none',
+                stroke: '#999',
+            });
+
+        var points = g
+            .append('circle')
+            .attr('cx', function(d) {
+                return spark.x(d.date);
+            })
+            .attr('cy', function(d) {
+                return y(d.value);
+            })
+            .attr('r', 3) //spark.rangeband)
+            .attr('fill', '#2b8cbe')
+            .attr('stroke', '#2b8cbe')
+            .classed('hidden', true);
+
+        return sparkline;
+    }
+
+    function drawBar(g, y, spark) {
+        return g
+            .append('rect')
+            .attr('class', 'bar')
+            .attr('y', function(d) {
+                return y(d.value);
+            })
+            .attr('width', spark.rangeband)
+            .attr('x', function(d) {
+                return spark.x(d.date) - spark.rangeband / 2;
+            })
+            .attr('height', function(d) {
+                return spark.height - spark.offset - y(d.value);
+            })
+            .attr('stroke', '#999')
+            .attr('fill', '#999');
+    }
+
+    function mouseover(d, chart) {
+        // structure is g (this) -> svg -> div.sparkline -> div.value-cell -> li
+        var li_cell = this.parentElement.parentElement.parentElement.parentElement;
+        var valueCells = d3
+            .selectAll(li_cell.children)
+            .filter(function() {
+                return this.classList.contains('value-cell');
+            })
+            .filter(function(f) {
+                return f.showSparkline;
+            });
+
+        var sparklines = valueCells.select('div.sparkline').select('svg');
+        var gs = sparklines.selectAll('g').filter(function(f) {
+            return f.date == d.date;
+        });
+
+        // make circles visible
+        gs.select('circle').classed('hidden', false);
+        gs.select('rect.bar').classed('highlight', true);
+
+        //show time label
+        valueCells.select('div.value').classed('hidden', true);
+        var hoverCells = valueCells
+            .append('div')
+            .attr('class', 'hover')
+            .datum(function(di) {
+                var obj = { date: d.date };
+                var val = di.sparkline.filter(function(f) {
+                    return f.date == d.date;
+                })[0];
+                obj.formatted = val ? val.formatted : '0';
+                obj.value = val ? val.value : '0';
+                return obj;
+            });
+
+        hoverCells
+            .append('div')
+            .attr('class', 'hover-date')
+            .text(function(d) {
+                return d.date ? d.date : 'No Date';
+            });
+        hoverCells
+            .append('div')
+            .attr('class', 'hover-value')
+            .text(function(d) {
+                return d.formatted;
+            });
+    }
+
+    function mouseout(d, chart) {
+        var li = this.parentElement.parentElement.parentElement.parentElement;
+        var row = d3.selectAll(li.children);
+        //hide point
+        row.selectAll('circle').classed('hidden', true);
+        row.selectAll('rect.bar').classed('highlight', false);
+
+        //show overall value
+        row.selectAll('div.value').classed('hidden', false);
+        row.selectAll('div.hover').remove();
+    }
+
+    function drawListing(d, label) {
+        var chart = this;
+        chart.listing.wrap.classed('hidden', false);
+        chart.listing.wrap.select('h3').text('Showing ' + d.length + ' records for ' + label);
+        chart.listing.draw(d);
+        chart.wrap.classed('hidden', true);
+        chart.controls.wrap.classed('hidden', true);
+    }
+
+    function click(d, chart) {
+        var value_cell = this.parentElement.parentElement.parentElement;
+        var cell_d = d3.select(value_cell).datum();
+
+        var raw = cell_d['raw'].filter(function(f) {
+            return f.date_interval == d.date;
+        });
+        var label = cell_d['keyDesc'] + ' for time = ' + d.date;
+        drawListing.call(chart, raw, label);
+    }
+
+    function lineEvents(g) {
+        var chart = this;
+
+        g.on('mouseover', function(d) {
+            mouseover.call(this, d, chart);
+        })
+            .on('mouseout', function(d) {
+                mouseout.call(this, d, chart);
+            })
+            .on('click', function(d) {
+                click.call(this, d, chart);
+            });
+    }
+
+    function drawSparkline(raw, cell, fillEmptyCells, type) {
+        if (type === undefined) type = 'line';
+        var spark = this.config.spark;
+        var data$1 = data(spark, raw, fillEmptyCells);
+        var y$1 = y(type, data$1, spark);
+        var svg$1 = svg(cell, spark);
+        var g$1 = g(svg$1, data$1);
+        var overlay$1 = overlay(g$1, spark);
+        var point = data$1.length === 1 ? drawPoint(g$1, spark, y$1) : null;
+        var line = type === 'line' ? drawLine(spark, y$1, svg$1, data$1, g$1) : null;
+        var bar = type === 'bar' ? drawBar(g$1, y$1, spark) : null;
+        lineEvents.call(this, g$1);
     }
 
     function drawHeader(ul) {
@@ -4376,6 +4447,8 @@
     }
 
     function drawListLevel(wrap, nest, header, iterate) {
+        var _this = this;
+
         var chart = this;
         var config = this.config;
         if (iterate == undefined) iterate = false;
@@ -4417,17 +4490,8 @@
         //        '</span>'
         //);
 
-        /* TODO fake little css barchart - could revive later with option? 
-            .style(
-                'background',
-                d =>
-                    'linear-gradient(90deg, #CCC ' +
-                    d3.format('.0%')(d.values.percent) +
-                    ', #FFF ' +
-                    d3.format('.0%')(d.values.percent) +
-                    ')'
-            );
-            */
+        /* TODO fake little css barchart - could revive later with option?
+         */
 
         var value_cells = lis
             .selectAll('div.value-cell')
@@ -4439,12 +4503,10 @@
             .enter()
             .append('div')
             .attr('class', 'list-cell value-cell')
-            .style('width', function(d) {
-                return config.show_sparklines & d.showSparkline ? config.spark.width + 50 : 50;
-            })
+            .style('width', config.spark.width + 50 + 'px')
             .style('height', config.spark.height > 25 ? config.spark.height : 25);
 
-        if (config.show_sparklines) {
+        if (config.show_sparklines && this.config.spark.dates.length > 1) {
             value_cells
                 .append('div')
                 .datum(function(d) {
@@ -4463,6 +4525,21 @@
                         d.type,
                     );
                 });
+        } else if (nest !== this.overall_data) {
+            value_cells.style('background', function(d) {
+                var metric = _this.config.metrics.find(function(metric) {
+                    return metric.label === d.label;
+                });
+                d.ratio = d.value / metric.max;
+                d.boundary = d3.format('%')(d.ratio);
+                if (d.label === 'Death Rate') {
+                    console.log(d);
+                    console.log(metric);
+                }
+                return d.ratio > 0
+                    ? 'linear-gradient(90deg, #CCC ' + d.boundary + ', #FFF ' + d.boundary + ')'
+                    : null;
+            });
         }
 
         value_cells
@@ -4529,7 +4606,7 @@
         } else {
             this.list
                 .append('span')
-                .text('No Data Selected. Update the filters or refresh the page to see the list. ');
+                .text('No data selected. Update the filters or refresh the page to see the list.');
         }
     }
 

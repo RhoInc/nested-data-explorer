@@ -1,5 +1,5 @@
 export default function calculateMetric(metric, d) {
-    let metric_obj = {};
+    const metric_obj = {};
     metric_obj.label = metric.label;
     metric_obj.visible = metric.visible;
     metric_obj.showSparkline = metric.showSparkline;
@@ -13,5 +13,6 @@ export default function calculateMetric(metric, d) {
     this[metric.label + '_formatted'] = metric_obj.formatted;
     metric_obj.title = metric.calcTitle == undefined ? null : metric.calcTitle.call(this, d);
     metric_obj.raw = d;
+
     return metric_obj;
 }

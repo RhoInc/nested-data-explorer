@@ -36,7 +36,7 @@ export default function makeNestLevel(key, data, iterate) {
             }
 
             // get data for the sparkline (but don't do this if you're already calculating sparkline data)
-            if ((key != 'date_interval') & config.show_sparklines) {
+            if (key !== 'date_interval' && config.show_sparklines) {
                 obj.sparkline = makeNestLevel.call(chart, 'date_interval', d);
             }
 

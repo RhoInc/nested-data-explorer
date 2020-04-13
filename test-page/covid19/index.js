@@ -1,100 +1,76 @@
 fetch('https://covidtracking.com/api/states/daily')
     .then(response => response.json())
     .then(data => {
-        const freqs = [
+        // data
+        data.forEach(d => {
+            d.date_string = d.date.toString();
+            d.date_object = d3.time.format('%Y%m%d').parse(d.date_string);
+            d.death_rate = d.deathIncrease / d.positiveIncrease;
+        });
+
+        // metrics
+        const metrics = [
+            { value_col: 'deathIncrease', label: 'Deaths' },
+            { value_col: 'positiveIncrease', label: 'Cases' },
             {
-                value_col: 'positive',
-                label: 'Cases',
-            },
-            {
-                value_col: 'death',
-                label: 'Deaths',
-            },
-            {
-                value_col: 'hospitalized',
-                label: 'Hospitalizations',
-            },
-            {
-                value_col: 'total',
-                label: 'Total Tests',
-            },
-            {
-                value_col: 'negative',
-                label: 'Negative Tests',
-            },
-            {
-                value_col: 'pending',
-                label: 'Pending Tests',
-            },
-        ];
-        const nested = d3
-            .nest()
-            .key(d => d.state)
-            .rollup(subset => {
-                const summary = {
-                    day1: d3.min(subset, d => d.date),
-                };
-                freqs.forEach(freq => {
-                    summary[freq.value_col] = d3.sum(subset, d => d[freq.value_col]);
-                });
-                subset.forEach(d => {
-                    d.day = d.date - summary.day1;
-                    d.date_string = d.date.toString();
-                    d.date_object = d3.time.format('%Y%m%d').parse(d.date_string);
-                    freqs.forEach(freq => {
-                        d[`${freq.value_col}_prop`] = d[freq.value_col] / summary[freq.value_col];
-                    });
-                    d.death_rate = d.death / d.positive;
-                });
-            })
-            .entries(data);
-        const minDate = new Date(
-            d3.min(data, d => d3.time.format('%Y%m%d').parse(d.date.toString())),
-        );
-        const maxDate = new Date(
-            d3.max(data, d => d3.time.format('%Y%m%d').parse(d.date.toString())),
-        );
-        const instance = new nestedDataExplorer('#container', {
-            sort_column: 'Cases',
-            group_options: [{ value_col: 'state', label: 'State' }],
-            groups: ['state'],
-            metrics: [
-                ...freqs.map(freq => {
-                    freq.calc = data => d3.sum(data, d => d[freq.value_col]);
-                    freq.format = ',1d';
-                    freq.showSparkline = true;
-                    return freq;
-                }),
-                {
-                    value_col: 'death_rate',
-                    label: 'Death Rate',
-                    calc: data => d3.mean(data, d => d.death_rate),
-                    format: '.2%',
-                    showSparkLine: true,
+                value_col: 'death_rate',
+                label: 'Death Rate',
+                format: '.2%',
+                calc: data => {
+                    const deaths = d3.sum(data, d => d.deathIncrease);
+                    const cases = d3.sum(data, d => d.positiveIncrease);
+                    return cases > 0 ? deaths / cases : 0;
                 },
+            },
+            { value_col: 'hospitalizedIncrease', label: 'Hospitalizations' },
+            { value_col: 'totalTestResultsIncrease', label: 'Total Tests' },
+            { value_col: 'negativeIncrease', label: 'Negative Tests' },
+            { value_col: 'pending', label: 'Pending Tests' },
+        ];
+        metrics.forEach(metric => {
+            metric.calc = metric.calc
+                ? metric.calc
+                : data => d3.sum(data, d => d[metric.value_col]);
+            metric.format = metric.format || ',1d';
+            metric.showSparkline = true;
+            metric.total = false;
+        });
+
+        // date ranges
+        const minDate = new Date(d3.min(data, d => d.date_object));
+        const maxDate = new Date(d3.max(data, d => d.date_object));
+        const date_ranges = {
+            Yesterday: [moment(maxDate).subtract(1, 'day'), moment(maxDate).subtract(1, 'day')],
+            'Last 7 Days': [
+                moment(maxDate)
+                    .subtract(7, 'days')
+                    .add(1, 'day'),
+                maxDate,
             ],
+            'Last 2 Weeks': [
+                moment(maxDate)
+                    .subtract(2, 'weeks')
+                    .add(1, 'day'),
+                maxDate,
+            ],
+            'Last Month': [
+                moment(maxDate)
+                    .subtract(1, 'month')
+                    .add(1, 'day'),
+                maxDate,
+            ],
+        };
+
+        // settings
+        const settings = {
+            metrics,
+            date_ranges,
+            date_range: date_ranges.Yesterday.map(date => date.toDate()),
             date_col: 'date_string',
             date_format: '%Y%m%d',
-            date_ranges: {
-                'Last 7 Days': [
-                    moment(maxDate)
-                        .subtract(7, 'days')
-                        .add(1, 'day'),
-                    maxDate,
-                ],
-                'Last 2 Weeks': [
-                    moment(maxDate)
-                        .subtract(2, 'weeks')
-                        .add(1, 'day'),
-                    maxDate,
-                ],
-                'Last Month': [
-                    moment(maxDate)
-                        .subtract(1, 'month')
-                        .add(1, 'day'),
-                    maxDate,
-                ],
-            },
+            group_options: [{ value_col: 'state', label: 'State' }],
+            groups: ['state'],
+            sort_column: 'Deaths',
             show_sparklines: true,
             spark: {
                 interval: '%d%b%y',
@@ -102,6 +78,9 @@ fetch('https://covidtracking.com/api/states/daily')
                 height: 25,
                 offset: 3,
             },
-        });
+        };
+
+        // initialize
+        const instance = new nestedDataExplorer('#container', settings);
         instance.init(data);
     });

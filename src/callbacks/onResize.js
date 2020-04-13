@@ -10,6 +10,6 @@ export default function onResize() {
     } else {
         this.list
             .append('span')
-            .text('No Data Selected. Update the filters or refresh the page to see the list. ');
+            .text('No data selected. Update the filters or refresh the page to see the list.');
     }
 }

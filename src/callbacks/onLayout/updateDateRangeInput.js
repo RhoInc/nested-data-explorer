@@ -13,8 +13,8 @@ export default function updateDateRangeInput() {
         $(dateRangeInput.node()).daterangepicker(
             // options
             {
-                startDate: minDate,
-                endDate: maxDate,
+                startDate: this.config.date_range[0],
+                endDate: this.config.date_range[1],
                 minDate,
                 maxDate,
                 ranges:
@@ -24,9 +24,7 @@ export default function updateDateRangeInput() {
             },
             // callback
             (start, end, label) => {
-                this.raw_data = this.initial_data.filter(
-                    d => start <= d.date_parsed && d.date_parsed <= end,
-                );
+                this.config.date_range = [start.toDate(), end.toDate()];
                 this.draw();
             },
         );

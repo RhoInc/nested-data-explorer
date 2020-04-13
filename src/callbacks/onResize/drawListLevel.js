@@ -35,17 +35,8 @@ export default function drawListLevel(wrap, nest, header, iterate) {
     //        '</span>'
     //);
 
-    /* TODO fake little css barchart - could revive later with option? 
-        .style(
-            'background',
-            d =>
-                'linear-gradient(90deg, #CCC ' +
-                d3.format('.0%')(d.values.percent) +
-                ', #FFF ' +
-                d3.format('.0%')(d.values.percent) +
-                ')'
-        );
-        */
+    /* TODO fake little css barchart - could revive later with option?
+     */
 
     const value_cells = lis
         .selectAll('div.value-cell')
@@ -53,12 +44,10 @@ export default function drawListLevel(wrap, nest, header, iterate) {
         .enter()
         .append('div')
         .attr('class', 'list-cell value-cell')
-        .style('width', d =>
-            config.show_sparklines & d.showSparkline ? config.spark.width + 50 : 50,
-        )
+        .style('width', `${config.spark.width + 50}px`)
         .style('height', config.spark.height > 25 ? config.spark.height : 25);
 
-    if (config.show_sparklines) {
+    if (config.show_sparklines && this.config.spark.dates.length > 1) {
         value_cells
             .append('div')
             .datum(d => d)
@@ -67,6 +56,19 @@ export default function drawListLevel(wrap, nest, header, iterate) {
             .each(function(d) {
                 drawSparkline.call(chart, d.sparkline, d3.select(this), d.fillEmptyCells, d.type);
             });
+    } else if (nest !== this.overall_data) {
+        value_cells.style('background', d => {
+            const metric = this.config.metrics.find(metric => metric.label === d.label);
+            d.ratio = d.value / metric.max;
+            d.boundary = d3.format('%')(d.ratio);
+            if (d.label === 'Death Rate') {
+                console.log(d);
+                console.log(metric);
+            }
+            return d.ratio > 0
+                ? `linear-gradient(90deg, #CCC ${d.boundary}, #FFF ${d.boundary})`
+                : null;
+        });
     }
 
     value_cells

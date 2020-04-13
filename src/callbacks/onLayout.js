@@ -3,8 +3,7 @@ import updateSortCheckbox from './onLayout/updateSortCheckbox';
 import updateDateRangeInput from './onLayout/updateDateRangeInput';
 
 export default function onLayout() {
-    let chart = this;
-    this.list = chart.wrap.append('div').attr('class', 'nested-data-explorer');
+    this.list = this.wrap.append('div').attr('class', 'nested-data-explorer');
     makeGroupControl.call(this);
     updateSortCheckbox.call(this);
     updateDateRangeInput.call(this);
