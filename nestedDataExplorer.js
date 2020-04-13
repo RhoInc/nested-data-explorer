@@ -4390,12 +4390,12 @@
             .enter()
             .append('div')
             .attr('class', 'list-cell value-cell')
-            .style('width', function(d) {
-                return (
-                    (config.show_sparklines && d.showSparkline ? config.spark.width + 50 : 50) +
-                    'px'
-                );
-            });
+            .style('width', config.spark.width + 50 + 'px');
+        //d => {
+        //    return (
+        //        (config.show_sparklines && d.showSparkline ? config.spark.width + 50 : 50) + 'px'
+        //    );
+        //});
         var valueCells = valueCellContainers
             .append('div')
             .classed('value', true)

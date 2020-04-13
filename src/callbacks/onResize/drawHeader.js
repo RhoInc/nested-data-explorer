@@ -24,11 +24,12 @@ export default function drawHeader(ul) {
         .enter()
         .append('div')
         .attr('class', 'list-cell value-cell')
-        .style('width', d => {
-            return (
-                (config.show_sparklines && d.showSparkline ? config.spark.width + 50 : 50) + 'px'
-            );
-        });
+        .style('width', `${config.spark.width + 50}px`);
+    //d => {
+    //    return (
+    //        (config.show_sparklines && d.showSparkline ? config.spark.width + 50 : 50) + 'px'
+    //    );
+    //});
     const valueCells = valueCellContainers
         .append('div')
         .classed('value', true)
